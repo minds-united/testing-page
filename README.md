@@ -1,6 +1,7 @@
 # testing-page (MyDigital ID opener)
 
-One static page: opens the MyDigital ID app for a login started on another device, because Telegram can't link
+One static page, published as `404.html` with no `index.html`: every address answers with a real HTTP 404, and
+the page shows only "404 Not Found" unless the part after `#` is a proper MyDigital ID login link. It opens the MyDigital ID app for a login started on another device, because Telegram can't link
 to the app (`misignet://`) directly. The road tax bot sends `https://minds-united.github.io/testing-page/#<login id>`.
 
 - The login id is after `#`, which browsers never send to the server.
@@ -10,4 +11,4 @@ to the app (`misignet://`) directly. The road tax bot sends `https://minds-unite
 - No outside files, no tracking, nothing sent anywhere.  The app still asks for the owner's PIN.
 - Only the person whose NRIC is on the Telegram message may approve.
 
-Source of truth: `rt-renewal-scraper/opener/index.html` (private repo).
+Source of truth: `rt-renewal-scraper/opener/404.html` (private repo).

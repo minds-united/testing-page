@@ -1,6 +1,8 @@
 <!doctype html>
 <!--
   Opens the MyDigital ID app for a login started on another device (the road tax bot's browser).
+  Published as 404.html with NO index.html, so GitHub Pages answers every address with a real HTTP 404, and the page
+  itself shows only "404 Not Found" unless the part after "#" is a proper MyDigital ID login link.
   Telegram can't link to the app (misignet://) directly, so its button links here: https://.../#<login id>.<check>.
 
   - Everything is after the "#": browsers never send that part to the web server, so this host never sees it.
@@ -10,7 +12,7 @@
   - Then it opens a MyDigital ID login for sso.digital-id.my, built exactly like that login page's own phone button
     ("misignet://mydigitalid?qr=" + base64 of the AUTH_INFO message). It can't open anything else.
   - Nothing is loaded from anywhere else and nothing is sent anywhere. The app still asks for the owner's PIN.
-  Source of truth: rt-renewal-scraper/opener/index.html
+  Source of truth: rt-renewal-scraper/opener/404.html
 -->
 <html lang="en">
   <head>
@@ -19,7 +21,7 @@
     <meta name="referrer" content="no-referrer" />
     <meta name="robots" content="noindex" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'" />
-    <title>Open MyDigital ID</title>
+    <title>404 Not Found</title>
     <style>
       :root { --bg: #ffffff; --fg: #1a1a1a; --muted: #5c5c5c; --line: #c8c8c8; --btn: #1f3c88; --btn-fg: #ffffff; --warn-bg: #fdecea; --warn-fg: #8a1c1c; --ok-bg: #e7f5ea; --ok-fg: #1d5e2c; }
       @media (prefers-color-scheme: dark) {
@@ -34,11 +36,14 @@
       input { box-sizing: border-box; width: 100%; font-size: 22px; letter-spacing: 2px; padding: 12px; border: 2px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); text-align: center; }
       .btn { display: block; box-sizing: border-box; width: 100%; margin-top: 14px; border: 0; background: var(--btn); color: var(--btn-fg); text-decoration: none; font-size: 19px; font-weight: 700; padding: 16px; border-radius: 12px; cursor: pointer; }
       .small { color: var(--muted); font-size: 14px; margin-top: 20px; }
+      .nf { font: 16px/1.5 Arial, sans-serif; color: var(--muted); padding: 48px 16px; text-align: center; }
+      .nf b { display: block; font-size: 28px; color: var(--fg); margin-bottom: 8px; }
       [hidden] { display: none !important; }
     </style>
   </head>
   <body>
-    <main>
+    <div id="nf" class="nf"><b>404</b>Not Found</div>
+    <main id="app" hidden>
       <h1>Open MyDigital ID</h1>
       <p class="warn">Only the person whose NRIC is on the Telegram message may approve. A wrong approval can get the account blocked.</p>
       <form id="form" hidden>
@@ -64,10 +69,11 @@
         var input = document.getElementById("nric");
         var msg = document.getElementById("msg");
         var say = function (text) { msg.textContent = text; msg.hidden = false; };
-        if (parts.length !== 2 || !/^[A-Za-z0-9_-]{10,64}$/.test(id) || !/^[A-Za-z0-9_-]{22}$/.test(check)) {
-          say("This link is not valid or is incomplete. Wait for the next one on Telegram.");
-          return;
-        }
+        // Not a proper MyDigital ID login link: stay a plain 404.
+        if (parts.length !== 2 || !/^[A-Za-z0-9_-]{10,64}$/.test(id) || !/^[A-Za-z0-9_-]{22}$/.test(check)) return;
+        document.getElementById("nf").hidden = true;
+        document.getElementById("app").hidden = false;
+        document.title = "Open MyDigital ID";
         form.hidden = false;
         var left = TRIES;
         var busy = false;

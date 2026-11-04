@@ -1,0 +1,60 @@
+<!doctype html>
+<!--
+  Opens the MyDigital ID app for a login started on another device (the road tax bot's browser).
+  Telegram can't link to the app (misignet://) directly, so its button links here: https://.../#<login id>.
+
+  - The login id is after the "#": browsers never send that part to the web server, so this host never sees it.
+  - It only ever opens a MyDigital ID login for sso.digital-id.my, built exactly like that login page's own
+    phone button ("misignet://mydigitalid?qr=" + base64 of the AUTH_INFO message). Anything else is refused.
+  - Nothing is loaded from anywhere else and nothing is sent anywhere. The app still asks for the owner's PIN.
+  - Opens only on a tap (never by itself), and wipes the id from the address bar.
+  Source of truth: rt-renewal-scraper/opener/index.html
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'" />
+    <title>Open MyDigital ID</title>
+    <style>
+      :root { --bg: #ffffff; --fg: #1a1a1a; --muted: #5c5c5c; --btn: #1f3c88; --btn-fg: #ffffff; --warn-bg: #fdecea; --warn-fg: #8a1c1c; }
+      @media (prefers-color-scheme: dark) {
+        :root { --bg: #121212; --fg: #f0f0f0; --muted: #b0b0b0; --btn: #4b6fd6; --btn-fg: #ffffff; --warn-bg: #3a1a1a; --warn-fg: #ffb4b4; }
+      }
+      body { margin: 0; background: var(--bg); color: var(--fg); font: 17px/1.5 -apple-system, system-ui, Arial, sans-serif; }
+      main { max-width: 420px; margin: 0 auto; padding: 32px 16px; text-align: center; }
+      h1 { font-size: 22px; margin: 0 0 12px; }
+      .warn { background: var(--warn-bg); color: var(--warn-fg); border-radius: 10px; padding: 12px; font-weight: 600; margin: 16px 0 24px; }
+      .btn { display: block; background: var(--btn); color: var(--btn-fg); text-decoration: none; font-size: 19px; font-weight: 700; padding: 16px; border-radius: 12px; }
+      .small { color: var(--muted); font-size: 14px; margin-top: 20px; }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Open MyDigital ID</h1>
+      <p class="warn">Approve ONLY if you are the person whose NRIC is on the Telegram message. A wrong approval can get the account blocked.</p>
+      <a id="open" class="btn" href="#" hidden>Open MyDigital ID</a>
+      <p id="bad" class="warn" hidden>This link is not valid or is incomplete. Wait for the next one on Telegram.</p>
+      <p class="small">The login code stays on this phone: nothing is sent to this website. The app will still ask for your PIN.</p>
+    </main>
+    <script>
+      (function () {
+        var id = decodeURIComponent(location.hash.slice(1));
+        // Wipe the login id from the address bar and history.
+        try { history.replaceState(null, "", location.pathname); } catch (e) {}
+        if (!/^[A-Za-z0-9_-]{10,64}$/.test(id)) {
+          document.getElementById("bad").hidden = false;
+          return;
+        }
+        // Exactly the message the MyDigital ID login page puts in its QR and its phone button.
+        var msg = '{"action": "AUTH_INFO", "url": "wss://sso.digital-id.my/wss/mydigitalid", "nonce": "' + id + '" }';
+        var open = document.getElementById("open");
+        open.href = "misignet://mydigitalid?qr=" + btoa(msg);
+        open.hidden = false;
+      })();
+    </script>
+  </body>
+</html>

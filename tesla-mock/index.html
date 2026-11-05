@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Tesla Price Table Mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: paultan-style data page. Dark top bar, one filter card of chips, then two tables side by side (prices for the chosen car | every Tesla's lowest price). Tokens follow apps/web globals.css. */
+:root{
+  --ink:#171a20; --ink-soft:#393c41; --muted:#5c5e62; --subtle:#86868b;
+  --surface:#ffffff; --canvas:#f5f5f7; --panel:#f4f4f4; --line:#e5e5e5; --line-strong:#d0d1d2;
+  --primary:#3e6ae1; --primary-soft:#e8eefc; --link:#0066cc; --success:#12805c; --success-soft:#e3f3ec; --accent:#b64400; --accent-soft:#fbeee6;
+  --bar:#171a20; --bar-ink:#ffffff; --bar-muted:#a3a6ab; --chip-on:#171a20; --chip-on-ink:#ffffff; --scrim:rgba(10,12,16,.45);
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#f2f3f5; --ink-soft:#d4d6da; --muted:#a3a6ab; --subtle:#7d8086;
+    --surface:#17191d; --canvas:#0e0f12; --panel:#1f2226; --line:#2a2d32; --line-strong:#3a3e44;
+    --primary:#7f9ff0; --primary-soft:#1d2740; --link:#7fb2f0; --success:#53c497; --success-soft:#14301f; --accent:#f09a62; --accent-soft:#3a2416;
+    --bar:#000000; --bar-ink:#ffffff; --bar-muted:#8d9096; --chip-on:#f2f3f5; --chip-on-ink:#17191d; --scrim:rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#f2f3f5; --ink-soft:#d4d6da; --muted:#a3a6ab; --subtle:#7d8086;
+  --surface:#17191d; --canvas:#0e0f12; --panel:#1f2226; --line:#2a2d32; --line-strong:#3a3e44;
+  --primary:#7f9ff0; --primary-soft:#1d2740; --link:#7fb2f0; --success:#53c497; --success-soft:#14301f; --accent:#f09a62; --accent-soft:#3a2416;
+  --bar:#000000; --bar-ink:#ffffff; --bar-muted:#8d9096; --chip-on:#f2f3f5; --chip-on-ink:#17191d; --scrim:rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bar)}
+button{font:inherit;color:inherit}
+h1,h2,h3,p{margin:0}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* top bar */
+.bar{background:var(--bar);color:var(--bar-ink);position:sticky;top:env(safe-area-inset-top,0px);z-index:6}
+.bar .wrap{display:flex;align-items:center;gap:22px;padding-block:14px;overflow-x:auto}
+.logo{font-weight:700;font-size:19px;letter-spacing:-.02em;white-space:nowrap}
+.logo span{color:var(--bar-muted);font-weight:500}
+.brand-pill{background:var(--bar-ink);color:var(--bar);border-radius:999px;padding:7px 16px;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.nav{display:flex;gap:18px;font-weight:600;font-size:14px;color:var(--bar-muted);white-space:nowrap}
+.nav b{color:var(--bar-ink);font-weight:600}
+.soon{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--bar-muted);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:2px}
+.sample{margin-left:auto;font-size:12px;font-weight:600;color:var(--bar);background:#f5c451;border-radius:999px;padding:4px 10px;white-space:nowrap}
+
+main{display:flex;flex-direction:column;gap:20px;padding-block:24px 48px}
+.intro{display:flex;flex-direction:column;gap:6px;padding-top:8px}
+.intro h1{font-size:clamp(26px,3.6vw,38px);font-weight:700;letter-spacing:-.025em;text-wrap:balance}
+.intro p{color:var(--muted);max-width:62ch}
+
+/* filters */
+.filters{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.frow{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap}
+.flabel{width:74px;flex:none;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--subtle)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;min-width:0;flex:1}
+.chip{border:1.5px solid var(--line-strong);background:var(--surface);border-radius:999px;padding:7px 15px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
+.chip:hover{border-color:var(--ink-soft)}
+.chip[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on)}
+.chip small{font-weight:500;opacity:.7;margin-left:4px}
+.seg{display:inline-flex;background:var(--panel);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.fnote{font-size:12.5px;color:var(--subtle);padding-left:88px}
+
+/* tables */
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:20px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;min-width:0;overflow:hidden}
+.card-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 22px 14px}
+.card-h h2{font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+.card-h p{font-size:13px;color:var(--muted);margin-top:3px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);text-align:left;padding:10px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:14px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child > td{border-bottom:0}
+.num{text-align:right}
+th.num{text-align:right}
+.rank{width:34px;color:var(--subtle);font-weight:600;text-align:center;padding-left:18px}
+.ins{display:flex;align-items:center;gap:11px;min-width:0}
+.logo-dot{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:12px;color:#fff;flex:none}
+.ins-name{font-weight:600;white-space:nowrap}
+.ins-plan{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.si{white-space:nowrap}
+.si small{display:block;font-size:12px;color:var(--muted)}
+.price{font-size:18px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.price small{display:block;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:2px 6px;margin-bottom:4px}
+.diff{font-size:12px;color:var(--muted);white-space:nowrap}
+.act{text-align:right;padding-right:18px;white-space:nowrap}
+.choose{border:0;background:var(--primary);color:#fff;border-radius:999px;padding:9px 18px;font-weight:600;font-size:14px;cursor:pointer}
+.choose:hover{filter:brightness(1.08)}
+.more{border:0;background:none;color:var(--link);font-size:13px;font-weight:500;cursor:pointer;padding:6px 4px;margin-right:6px}
+.detail td{background:var(--panel);padding:14px 22px}
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px 28px}
+.detail h3{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:6px}
+.bd{display:grid;grid-template-columns:1fr auto;gap:3px 14px;font-size:13.5px}
+.bd dt{color:var(--muted)}
+.bd dd{margin:0;text-align:right}
+.bd .t{font-weight:700;border-top:1px solid var(--line-strong);padding-top:4px}
+.ben{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13.5px}
+.ben li{display:flex;gap:7px}
+.ben .y{color:var(--success);font-weight:700}
+.ben .n{color:var(--subtle)}
+
+/* every-variant table */
+.vrow{cursor:pointer}
+.vrow:hover td{background:var(--panel)}
+.vrow[aria-selected="true"] td{background:var(--primary-soft)}
+.vname{font-weight:600}
+.vname small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+.bar-cell{width:90px}
+.mini{height:6px;border-radius:3px;background:var(--line)}
+.mini i{display:block;height:100%;border-radius:3px;background:var(--primary)}
+
+.foot{font-size:12.5px;color:var(--subtle);max-width:80ch}
+
+/* chosen sheet */
+.sheet-wrap{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+.sheet{background:var(--surface);color:var(--ink);border-radius:20px;width:min(460px,100%);padding:24px;display:flex;flex-direction:column;gap:14px;max-height:90vh;overflow-y:auto}
+.sheet h2{font-size:21px;font-weight:700;letter-spacing:-.015em}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;counter-reset:s}
+.steps li{display:flex;gap:10px;align-items:baseline;font-size:14.5px;counter-increment:s}
+.steps li::before{content:counter(s);width:22px;height:22px;flex:none;border-radius:50%;background:var(--panel);display:grid;place-items:center;font-size:12px;font-weight:700}
+.steps li.now::before{background:var(--ink);color:var(--surface)}
+.callout{font-size:13px;background:var(--success-soft);color:var(--ink);border-radius:12px;padding:10px 12px}
+.sheet .row{display:flex;gap:10px;justify-content:flex-end}
+.ghost{border:1.5px solid var(--line-strong);background:transparent;border-radius:999px;padding:9px 18px;font-weight:600;cursor:pointer}
+
+@media (max-width: 960px){ .grid{grid-template-columns:minmax(0,1fr)} }
+@media (max-width: 640px){
+  .filters{padding:16px}
+  .flabel{width:100%}
+  .fnote{padding-left:0}
+  .hide-sm{display:none}
+  .rank{padding-left:12px}
+  .act{padding-right:12px}
+  .more{display:none}
+  td{padding:12px 8px}
+  .choose{padding:8px 14px}
+  .card-h{padding:18px 16px 12px}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <div class="logo">[Site name]<span> .my</span></div>
+    <div class="brand-pill">Tesla</div>
+    <nav class="nav" aria-label="Car brands"><b>Tesla</b><span>BYD<span class="soon">Soon</span></span><span>Xpeng<span class="soon">Soon</span></span></nav>
+    <span class="sample">Mock · sample prices</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <h1>Tesla insurance prices, all in one table.</h1>
+    <p>Pick your car, region and NCD. Every insurer's yearly price shows up straight away. No forms, no sign-up.</p>
+  </section>
+
+  <section class="filters" aria-label="Your car">
+    <div class="frow"><span class="flabel" id="l-model">Model</span><div class="chips" id="models" role="group" aria-labelledby="l-model"></div></div>
+    <div class="frow"><span class="flabel" id="l-var">Variant</span><div class="chips" id="variants" role="group" aria-labelledby="l-var"></div></div>
+    <div class="frow"><span class="flabel" id="l-reg">Region</span><div class="chips" id="regions" role="group" aria-labelledby="l-reg"></div></div>
+    <div class="frow"><span class="flabel" id="l-ncd">NCD</span><div class="chips" id="ncds" role="group" aria-labelledby="l-ncd"></div></div>
+    <div class="frow"><span class="flabel" id="l-show">Show</span>
+      <div class="seg" id="period" role="group" aria-labelledby="l-show">
+        <button type="button" data-v="year" aria-pressed="true">Per year</button>
+        <button type="button" data-v="month" aria-pressed="false">Per month</button>
+      </div>
+    </div>
+    <p class="fnote">NCD (No Claim Discount) comes from your current car. Not sure? Pick one to look around. You confirm the right one before paying.</p>
+  </section>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="t-prices">
+      <div class="card-h"><div><h2 id="t-prices"></h2><p id="t-prices-sub"></p></div></div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th class="rank">#</th><th>Insurer</th><th class="hide-sm">Sum insured</th><th class="num" id="th-price">Per year</th><th class="act"><span class="hide-sm">&nbsp;</span></th></tr></thead>
+          <tbody id="prices"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="t-all">
+      <div class="card-h"><div><h2 id="t-all">Every Tesla, lowest price</h2><p id="t-all-sub"></p></div></div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th class="rank">#</th><th>Variant</th><th class="num" id="th-low">From / year</th><th class="bar-cell hide-sm"></th></tr></thead>
+          <tbody id="all"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <p class="foot">Mock for discussion. All prices are sample numbers, not real quotes. On the real site every price comes from our backend, worked out from each insurer's premium table. Prices include service tax and stamp duty. "Per month" is the yearly price ÷ 12, to compare; pay-later plans show their own amounts at checkout.</p>
+</main>
+
+<div class="sheet-wrap" id="sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="s-title">
+    <h2 id="s-title"></h2>
+    <p id="s-sub" style="color:var(--muted)"></p>
+    <ol class="steps">
+      <li class="now">Choose an insurer: done</li>
+      <li>Add-ons</li>
+      <li>Your details: IC, plate number (VRN), postcode</li>
+      <li>Price check, then pay (card, FPX, or pay later)</li>
+    </ol>
+    <p class="callout">This click is where the order gets saved on the real site (status <b>checkout</b>). Browsing above saves nothing.</p>
+    <div class="row"><button type="button" class="ghost" id="s-close">Back to prices</button></div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const cents = n => Math.round(n * 100) / 100;
+const rm = (n, dp) => "RM " + n.toLocaleString("en-MY", {minimumFractionDigits: dp ?? 2, maximumFractionDigits: dp ?? 2});
+
+// SAMPLE DATA ONLY. Not real premiums.
+const VARIANTS = [
+  {id:"m3-std",  model:"Model 3",   name:"Standard",              drive:"Rear-Wheel Drive",            si:165000},
+  {id:"m3-prwd", model:"Model 3",   name:"Premium",               drive:"Rear-Wheel Drive",            si:182000},
+  {id:"m3-plr",  model:"Model 3",   name:"Premium Long Range",    drive:"Rear-Wheel Drive",            si:196000},
+  {id:"m3-perf", model:"Model 3",   name:"Performance",           drive:"All-Wheel Drive",             si:236000},
+  {id:"my-prwd", model:"Model Y",   name:"Premium",               drive:"Rear-Wheel Drive",            si:199000},
+  {id:"my-plr",  model:"Model Y",   name:"Premium Long Range",    drive:"Rear-Wheel Drive",            si:215000},
+  {id:"my-awd",  model:"Model Y",   name:"Premium Long Range",    drive:"All-Wheel Drive",             si:233000},
+  {id:"myl-awd", model:"Model Y L", name:"Premium",               drive:"All-Wheel Drive · 6 seats",   si:252000}
+];
+const MODELS = [...new Set(VARIANTS.map(v => v.model))];
+const INSURERS = [
+  {id:"tm",  name:"Takaful Malaysia", plan:"Takaful myMotor", mark:"TM", color:"#0b7a5a", rate:0.0262, siAdj:0.995, basis:"Market value", takaful:true,
+   ben:[["EV home charger", false], ["24/7 roadside help", true], ["Personal accident", true]]},
+  {id:"zg",  name:"Zurich General",   plan:"Z-TeslaCare",     mark:"ZG", color:"#1f4ea8", rate:0.0275, siAdj:1,     basis:"Agreed value", takaful:false,
+   ben:[["EV home charger", true], ["24/7 roadside help", true], ["Personal accident", true]]},
+  {id:"zt",  name:"Zurich Takaful",   plan:"EV Protect",      mark:"ZT", color:"#2f6fd0", rate:0.0284, siAdj:1,     basis:"Agreed value", takaful:true,
+   ben:[["EV home charger", true], ["24/7 roadside help", true], ["Personal accident", false]]},
+  {id:"az",  name:"Allianz",          plan:"EV Shield",       mark:"AZ", color:"#003781", rate:0.0301, siAdj:0.985, basis:"Agreed value", takaful:false,
+   ben:[["EV home charger", true], ["24/7 roadside help", true], ["Personal accident", false]]}
+];
+const REGIONS = [{id:"peninsular", name:"Peninsular Malaysia", factor:1}, {id:"east", name:"East Malaysia", factor:0.96, hint:"Sabah · Sarawak · Labuan"}];
+const NCDS = [0, 25, 30, 38.33, 45, 55];
+const TAX = 0.08, STAMP = 10; // sample values
+
+// One "backend" price: in the real site this whole table comes from GET /v1/public/b/tesla/prices.
+function priceOf(v, ins, regionId, ncd){
+  const region = REGIONS.find(r => r.id === regionId);
+  const si = Math.round(v.si * ins.siAdj / 100) * 100;
+  const basic = cents(si * ins.rate * region.factor);
+  const ncdAmt = cents(basic * ncd / 100);
+  const gross = cents(basic - ncdAmt);
+  const tax = cents(gross * TAX);
+  const total = cents(gross + tax + STAMP);
+  return {si, basic, ncdAmt, gross, tax, stamp: STAMP, total};
+}
+
+const S = {model: "Model 3", variant: "m3-plr", region: "peninsular", ncd: 38.33, period: "year", open: null};
+const amount = t => S.period === "year" ? t : cents(t / 12);
+const perLabel = () => S.period === "year" ? "/ year" : "/ month";
+
+function chips(el, items, current, key){
+  $(el).innerHTML = items.map(it => '<button type="button" class="chip" data-k="' + key + '" data-v="' + esc(it.v) + '" aria-pressed="' + (String(it.v) === String(current)) + '">' + it.label + '</button>').join("");
+}
+
+function render(){
+  const vs = VARIANTS.filter(v => v.model === S.model);
+  if (!vs.some(v => v.id === S.variant)) S.variant = vs[0].id;
+  const v = VARIANTS.find(x => x.id === S.variant);
+
+  chips("#models", MODELS.map(m => ({v: m, label: esc(m)})), S.model, "model");
+  chips("#variants", vs.map(x => ({v: x.id, label: esc(x.name) + '<small>' + esc(x.drive) + '</small>'})), S.variant, "variant");
+  chips("#regions", REGIONS.map(r => ({v: r.id, label: esc(r.name) + (r.hint ? '<small>' + r.hint + '</small>' : "")})), S.region, "region");
+  chips("#ncds", NCDS.map(n => ({v: n, label: n + "%"})), S.ncd, "ncd");
+  document.querySelectorAll("#period button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === S.period)));
+
+  // left table
+  const rows = INSURERS.map(ins => ({ins, p: priceOf(v, ins, S.region, S.ncd)})).sort((a, b) => a.p.total - b.p.total);
+  const low = rows[0].p.total;
+  $("#t-prices").textContent = v.model + " " + v.name + " " + v.drive.split(" · ")[0];
+  $("#t-prices-sub").textContent = REGIONS.find(r => r.id === S.region).name + " · NCD " + S.ncd + "% · " + rows.length + " insurers, cheapest first";
+  $("#th-price").textContent = S.period === "year" ? "Per year" : "Per month";
+  $("#prices").innerHTML = rows.map((r, i) => {
+    const p = r.p, ins = r.ins, open = S.open === ins.id;
+    const diff = i === 0 ? '<span class="tag">Lowest price</span>' : '<span class="diff">+' + rm(amount(cents(p.total - low))) + '</span>';
+    let html = '<tr>' +
+      '<td class="rank">' + (i + 1) + '</td>' +
+      '<td><div class="ins"><span class="logo-dot" style="background:' + ins.color + '" aria-hidden="true">' + ins.mark + '</span><div><div class="ins-name">' + esc(ins.name) + '</div><div class="ins-plan">' + esc(ins.plan) + '</div></div></div></td>' +
+      '<td class="si hide-sm">' + rm(p.si, 0) + '<small>' + ins.basis + '</small></td>' +
+      '<td class="num">' + diff + '<div class="price">' + rm(amount(p.total)) + '<small>' + perLabel() + '</small></div></td>' +
+      '<td class="act"><button type="button" class="more" data-open="' + ins.id + '" aria-expanded="' + open + '">' + (open ? "Hide" : "Details") + '</button><button type="button" class="choose" data-choose="' + ins.id + '">Choose</button></td>' +
+      '</tr>';
+    if (open) {
+      const word = ins.takaful ? "Basic contribution" : "Basic premium";
+      html += '<tr class="detail"><td colspan="5"><div class="detail-grid">' +
+        '<div><h3>Price breakdown (per year)</h3><dl class="bd">' +
+          '<dt>' + word + '</dt><dd>' + rm(p.basic) + '</dd>' +
+          '<dt>NCD ' + S.ncd + '%</dt><dd>− ' + rm(p.ncdAmt) + '</dd>' +
+          '<dt>Service tax (8%, sample)</dt><dd>' + rm(p.tax) + '</dd>' +
+          '<dt>Stamp duty</dt><dd>' + rm(p.stamp) + '</dd>' +
+          '<dt class="t">Total</dt><dd class="t">' + rm(p.total) + '</dd></dl></div>' +
+        '<div><h3>Included</h3><ul class="ben">' + ins.ben.map(b => '<li><span class="' + (b[1] ? "y" : "n") + '">' + (b[1] ? "✓" : "–") + '</span>' + esc(b[0]) + (b[1] ? "" : ": not covered") + '</li>').join("") + '</ul></div>' +
+        '</div></td></tr>';
+    }
+    return html;
+  }).join("");
+
+  // right table: every variant's lowest price
+  const all = VARIANTS.map(x => {
+    const best = INSURERS.map(ins => ({ins, t: priceOf(x, ins, S.region, S.ncd).total})).sort((a, b) => a.t - b.t)[0];
+    return {x, best};
+  }).sort((a, b) => a.best.t - b.best.t);
+  const max = Math.max(...all.map(a => a.best.t));
+  $("#th-low").textContent = S.period === "year" ? "From / year" : "From / month";
+  $("#t-all-sub").textContent = "At NCD " + S.ncd + "%, " + (S.region === "east" ? "East Malaysia" : "Peninsular") + ". Tap a row to see it.";
+  $("#all").innerHTML = all.map((a, i) =>
+    '<tr class="vrow" tabindex="0" data-pick="' + a.x.id + '" aria-selected="' + (a.x.id === S.variant) + '">' +
+      '<td class="rank">' + (i + 1) + '</td>' +
+      '<td class="vname">' + esc(a.x.model) + " " + esc(a.x.name) + '<small>' + esc(a.x.drive) + " · " + esc(a.best.ins.name) + '</small></td>' +
+      '<td class="num price" style="font-size:15.5px">' + rm(amount(a.best.t)) + '</td>' +
+      '<td class="bar-cell hide-sm"><div class="mini"><i style="width:' + Math.round(a.best.t / max * 100) + '%"></i></div></td>' +
+    '</tr>').join("");
+}
+
+document.addEventListener("click", e => {
+  const chip = e.target.closest(".chip");
+  if (chip) { const k = chip.dataset.k, val = chip.dataset.v; S[k] = k === "ncd" ? Number(val) : val; S.open = null; render(); return; }
+  const per = e.target.closest("#period button");
+  if (per) { S.period = per.dataset.v; render(); return; }
+  const more = e.target.closest("[data-open]");
+  if (more) { S.open = S.open === more.dataset.open ? null : more.dataset.open; render(); return; }
+  const pick = e.target.closest("[data-pick]");
+  if (pick) { const v = VARIANTS.find(x => x.id === pick.dataset.pick); S.model = v.model; S.variant = v.id; S.open = null; render(); window.scrollTo({top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); return; }
+  const ch = e.target.closest("[data-choose]");
+  if (ch) {
+    const ins = INSURERS.find(i => i.id === ch.dataset.choose), v = VARIANTS.find(x => x.id === S.variant), p = priceOf(v, ins, S.region, S.ncd);
+    $("#s-title").textContent = "You chose " + ins.name;
+    $("#s-sub").textContent = ins.plan + " for " + v.model + " " + v.name + " · NCD " + S.ncd + "% · " + rm(p.total) + " / year (sample)";
+    $("#sheet").hidden = false; $("#s-close").focus(); return;
+  }
+  if (e.target.id === "s-close" || e.target.id === "sheet") { $("#sheet").hidden = true; }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") $("#sheet").hidden = true;
+  const row = e.target.closest && e.target.closest("[data-pick]");
+  if (row && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); row.click(); }
+});
+render();
+})();
+</script>
+
+</body>
+</html>

@@ -112,15 +112,23 @@ th.num{text-align:right}
 .ben .y{color:var(--success);font-weight:700}
 .ben .n{color:var(--subtle)}
 
-/* every-variant table */
-.vrow{cursor:pointer}
-.vrow:hover td{background:var(--panel)}
-.vrow[aria-selected="true"] td{background:var(--primary-soft)}
-.vname{font-weight:600}
-.vname small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
-.bar-cell{width:90px}
-.mini{height:6px;border-radius:3px;background:var(--line)}
-.mini i{display:block;height:100%;border-radius:3px;background:var(--primary)}
+/* coverage columns */
+table.wide{min-width:1080px}
+th.cov{white-space:normal;line-height:1.25;min-width:96px;max-width:120px;vertical-align:bottom}
+td.cov{font-size:13px;line-height:1.3;color:var(--ink-soft)}
+td.cov b{display:block;font-size:14px}
+td.cov small{display:block;color:var(--muted);font-size:11.5px}
+.y{color:var(--success)}
+.a{color:var(--accent)}
+.n{color:var(--subtle);font-weight:500}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);white-space:nowrap}
+.legend b{margin-right:4px}
+.sticky{position:sticky;left:0;background:var(--surface);z-index:1}
+tr.detail .sticky{background:var(--panel)}
+td.sticky,th.sticky{box-shadow:1px 0 0 var(--line)}
+tbody tr:hover > td{background:var(--canvas)}
+tbody tr:hover > td.sticky{background:var(--canvas)}
+tr.detail:hover > td{background:var(--panel)}
 
 .foot{font-size:12.5px;color:var(--subtle);max-width:80ch}
 
@@ -141,10 +149,11 @@ th.num{text-align:right}
   .filters{padding:16px}
   .flabel{width:100%}
   .fnote{padding-left:0}
-  .hide-sm{display:none}
-  .rank{padding-left:12px}
+  .rank{display:none}
   .act{padding-right:12px}
   .more{display:none}
+  .ins-plan{white-space:normal}
+  .logo-dot{width:28px;height:28px;font-size:11px}
   td{padding:12px 8px}
   .choose{padding:8px 14px}
   .card-h{padding:18px 16px 12px}
@@ -183,29 +192,19 @@ th.num{text-align:right}
     <p class="fnote">NCD (No Claim Discount) comes from your current car. Not sure? Pick one to look around. You confirm the right one before paying.</p>
   </section>
 
-  <div class="grid">
-    <section class="card" aria-labelledby="t-prices">
-      <div class="card-h"><div><h2 id="t-prices"></h2><p id="t-prices-sub"></p></div></div>
-      <div class="scroll">
-        <table>
-          <thead><tr><th class="rank">#</th><th>Insurer</th><th class="hide-sm">Sum insured</th><th class="num" id="th-price">Per year</th><th class="act"><span class="hide-sm">&nbsp;</span></th></tr></thead>
-          <tbody id="prices"></tbody>
-        </table>
-      </div>
-    </section>
+  <section class="card" aria-labelledby="t-prices">
+    <div class="card-h"><div><h2 id="t-prices"></h2><p id="t-prices-sub"></p></div>
+      <div class="legend" aria-label="Key"><span><b class="y">✓</b> Included</span><span><b class="a">+</b> Add-on</span><span><b class="n">–</b> Not covered</span></div>
+    </div>
+    <div class="scroll">
+      <table class="wide">
+        <thead id="thead"></thead>
+        <tbody id="prices"></tbody>
+      </table>
+    </div>
+  </section>
 
-    <section class="card" aria-labelledby="t-all">
-      <div class="card-h"><div><h2 id="t-all">Every Tesla, lowest price</h2><p id="t-all-sub"></p></div></div>
-      <div class="scroll">
-        <table>
-          <thead><tr><th class="rank">#</th><th>Variant</th><th class="num" id="th-low">From / year</th><th class="bar-cell hide-sm"></th></tr></thead>
-          <tbody id="all"></tbody>
-        </table>
-      </div>
-    </section>
-  </div>
-
-  <p class="foot">Mock for discussion. All prices are sample numbers, not real quotes. On the real site every price comes from our backend, worked out from each insurer's premium table. Prices include service tax and stamp duty. "Per month" is the yearly price ÷ 12, to compare; pay-later plans show their own amounts at checkout.</p>
+  <p class="foot">Mock for discussion. All prices are sample numbers, not real quotes. Coverage amounts are copied from our Figma draft and still need checking against each insurer's product wording. On the real site every price comes from our backend, worked out from each insurer's premium table. Prices include service tax and stamp duty. "Per month" is the yearly price ÷ 12, to compare; pay-later plans show their own amounts at checkout.</p>
 </main>
 
 <div class="sheet-wrap" id="sheet" hidden>
@@ -243,16 +242,23 @@ const VARIANTS = [
   {id:"myl-awd", model:"Model Y L", name:"Premium",               drive:"All-Wheel Drive · 6 seats",   si:252000}
 ];
 const MODELS = [...new Set(VARIANTS.map(v => v.model))];
+// Coverage columns. Values from the Figma draft (to be checked against each product wording).
+// Each cell: ["y" | "a" | "n", main text, small note]
+const COVERS = ["EV home charger", "Liability at EV charging", "Portable charging cable", "Public EV charger", "24/7 roadside help", "Personal accident", "Key care"];
 const INSURERS = [
   {id:"tm",  name:"Takaful Malaysia", plan:"Takaful myMotor", mark:"TM", color:"#0b7a5a", rate:0.0262, siAdj:0.995, basis:"Market value", takaful:true,
-   ben:[["EV home charger", false], ["24/7 roadside help", true], ["Personal accident", true]]},
+   cov:[["n"], ["n"], ["n"], ["n"], ["y", "Towing", "by plan"], ["y", "Included", "by plan"], ["n"]]},
   {id:"zg",  name:"Zurich General",   plan:"Z-TeslaCare",     mark:"ZG", color:"#1f4ea8", rate:0.0275, siAdj:1,     basis:"Agreed value", takaful:false,
-   ben:[["EV home charger", true], ["24/7 roadside help", true], ["Personal accident", true]]},
+   cov:[["y", "RM 15,000"], ["y", "RM 50,000"], ["y", "RM 2,000"], ["y", "RM 20,000"], ["y", "Unlimited"], ["y", "RM 20,000"], ["y", "RM 2,000"]]},
   {id:"zt",  name:"Zurich Takaful",   plan:"EV Protect",      mark:"ZT", color:"#2f6fd0", rate:0.0284, siAdj:1,     basis:"Agreed value", takaful:true,
-   ben:[["EV home charger", true], ["24/7 roadside help", true], ["Personal accident", false]]},
+   cov:[["y", "RM 15,000"], ["y", "RM 50,000"], ["y", "RM 2,000"], ["y", "RM 20,000"], ["y", "Unlimited"], ["n"], ["n"]]},
   {id:"az",  name:"Allianz",          plan:"EV Shield",       mark:"AZ", color:"#003781", rate:0.0301, siAdj:0.985, basis:"Agreed value", takaful:false,
-   ben:[["EV home charger", true], ["24/7 roadside help", true], ["Personal accident", false]]}
+   cov:[["y", "RM 15,000"], ["y", "RM 50,000", "home charger only"], ["y", "RM 2,000"], ["y", "RM 5,000"], ["y", "Included"], ["a", "Add-on"], ["a", "Add-on"]]}
 ];
+const covCell = c => {
+  if (c[0] === "n") return '<span class="n">– Not covered</span>';
+  return '<b class="' + c[0] + '">' + (c[0] === "y" ? "✓ " : "+ ") + esc(c[1]) + '</b>' + (c[2] ? '<small>' + esc(c[2]) + '</small>' : "");
+};
 const REGIONS = [{id:"peninsular", name:"Peninsular Malaysia", factor:1}, {id:"east", name:"East Malaysia", factor:0.96, hint:"Sabah · Sarawak · Labuan"}];
 const NCDS = [0, 25, 30, 38.33, 45, 55];
 const TAX = 0.08, STAMP = 10; // sample values
@@ -293,47 +299,34 @@ function render(){
   const low = rows[0].p.total;
   $("#t-prices").textContent = v.model + " " + v.name + " " + v.drive.split(" · ")[0];
   $("#t-prices-sub").textContent = REGIONS.find(r => r.id === S.region).name + " · NCD " + S.ncd + "% · " + rows.length + " insurers, cheapest first";
-  $("#th-price").textContent = S.period === "year" ? "Per year" : "Per month";
+  $("#thead").innerHTML = '<tr><th class="rank">#</th><th class="sticky">Insurer</th>' +
+    '<th class="num">' + (S.period === "year" ? "Per year" : "Per month") + '</th><th>Sum insured</th>' +
+    COVERS.map(c => '<th class="cov">' + esc(c) + '</th>').join("") + '<th class="act"></th></tr>';
+  const cols = 5 + COVERS.length;
   $("#prices").innerHTML = rows.map((r, i) => {
     const p = r.p, ins = r.ins, open = S.open === ins.id;
     const diff = i === 0 ? '<span class="tag">Lowest price</span>' : '<span class="diff">+' + rm(amount(cents(p.total - low))) + '</span>';
     let html = '<tr>' +
       '<td class="rank">' + (i + 1) + '</td>' +
-      '<td><div class="ins"><span class="logo-dot" style="background:' + ins.color + '" aria-hidden="true">' + ins.mark + '</span><div><div class="ins-name">' + esc(ins.name) + '</div><div class="ins-plan">' + esc(ins.plan) + '</div></div></div></td>' +
-      '<td class="si hide-sm">' + rm(p.si, 0) + '<small>' + ins.basis + '</small></td>' +
+      '<td class="sticky"><div class="ins"><span class="logo-dot" style="background:' + ins.color + '" aria-hidden="true">' + ins.mark + '</span><div><div class="ins-name">' + esc(ins.name) + '</div><div class="ins-plan">' + esc(ins.plan) + '</div></div></div></td>' +
       '<td class="num">' + diff + '<div class="price">' + rm(amount(p.total)) + '<small>' + perLabel() + '</small></div></td>' +
-      '<td class="act"><button type="button" class="more" data-open="' + ins.id + '" aria-expanded="' + open + '">' + (open ? "Hide" : "Details") + '</button><button type="button" class="choose" data-choose="' + ins.id + '">Choose</button></td>' +
+      '<td class="si">' + rm(p.si, 0) + '<small>' + ins.basis + '</small></td>' +
+      ins.cov.map(c => '<td class="cov">' + covCell(c) + '</td>').join("") +
+      '<td class="act"><button type="button" class="more" data-open="' + ins.id + '" aria-expanded="' + open + '">' + (open ? "Hide" : "Price breakdown") + '</button><button type="button" class="choose" data-choose="' + ins.id + '">Choose</button></td>' +
       '</tr>';
     if (open) {
       const word = ins.takaful ? "Basic contribution" : "Basic premium";
-      html += '<tr class="detail"><td colspan="5"><div class="detail-grid">' +
+      html += '<tr class="detail"><td></td><td class="sticky" colspan="' + (cols - 1) + '"><div class="detail-grid" style="max-width:360px">' +
         '<div><h3>Price breakdown (per year)</h3><dl class="bd">' +
           '<dt>' + word + '</dt><dd>' + rm(p.basic) + '</dd>' +
           '<dt>NCD ' + S.ncd + '%</dt><dd>− ' + rm(p.ncdAmt) + '</dd>' +
           '<dt>Service tax (8%, sample)</dt><dd>' + rm(p.tax) + '</dd>' +
           '<dt>Stamp duty</dt><dd>' + rm(p.stamp) + '</dd>' +
           '<dt class="t">Total</dt><dd class="t">' + rm(p.total) + '</dd></dl></div>' +
-        '<div><h3>Included</h3><ul class="ben">' + ins.ben.map(b => '<li><span class="' + (b[1] ? "y" : "n") + '">' + (b[1] ? "✓" : "–") + '</span>' + esc(b[0]) + (b[1] ? "" : ": not covered") + '</li>').join("") + '</ul></div>' +
         '</div></td></tr>';
     }
     return html;
   }).join("");
-
-  // right table: every variant's lowest price
-  const all = VARIANTS.map(x => {
-    const best = INSURERS.map(ins => ({ins, t: priceOf(x, ins, S.region, S.ncd).total})).sort((a, b) => a.t - b.t)[0];
-    return {x, best};
-  }).sort((a, b) => a.best.t - b.best.t);
-  const max = Math.max(...all.map(a => a.best.t));
-  $("#th-low").textContent = S.period === "year" ? "From / year" : "From / month";
-  $("#t-all-sub").textContent = "At NCD " + S.ncd + "%, " + (S.region === "east" ? "East Malaysia" : "Peninsular") + ". Tap a row to see it.";
-  $("#all").innerHTML = all.map((a, i) =>
-    '<tr class="vrow" tabindex="0" data-pick="' + a.x.id + '" aria-selected="' + (a.x.id === S.variant) + '">' +
-      '<td class="rank">' + (i + 1) + '</td>' +
-      '<td class="vname">' + esc(a.x.model) + " " + esc(a.x.name) + '<small>' + esc(a.x.drive) + " · " + esc(a.best.ins.name) + '</small></td>' +
-      '<td class="num price" style="font-size:15.5px">' + rm(amount(a.best.t)) + '</td>' +
-      '<td class="bar-cell hide-sm"><div class="mini"><i style="width:' + Math.round(a.best.t / max * 100) + '%"></i></div></td>' +
-    '</tr>').join("");
 }
 
 document.addEventListener("click", e => {

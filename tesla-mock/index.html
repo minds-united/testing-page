@@ -146,9 +146,25 @@ tr.detail:hover > td{background:var(--panel)}
 
 @media (max-width: 960px){ .grid{grid-template-columns:minmax(0,1fr)} }
 @media (max-width: 640px){
-  .filters{padding:16px}
-  .flabel{width:100%}
-  .fnote{padding-left:0}
+  .bar .wrap{gap:12px;padding-block:12px}
+  .logo{font-size:17px}
+  .nav{display:none}
+  .brand-pill{padding:5px 12px;font-size:12px}
+  .sample{font-size:11px;padding:3px 8px}
+  main{gap:16px;padding-block:16px 40px}
+  .intro h1{font-size:24px}
+  .intro p{font-size:14px}
+  .filters{padding:14px 0;gap:10px;border-radius:16px}
+  .frow{flex-direction:column;align-items:stretch;gap:6px}
+  .flabel{width:auto;font-size:10.5px;padding-inline:14px}
+  /* one row per option group, swipe sideways */
+  .chips{flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-inline:14px;scroll-padding-inline:14px;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    -webkit-mask-image:linear-gradient(to right,#000 88%,transparent);mask-image:linear-gradient(to right,#000 88%,transparent)}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{padding:6px 12px;font-size:13.5px;flex:none}
+  .chip .hint{display:none}
+  .seg{margin-inline:14px;align-self:flex-start}
+  .fnote{padding-left:14px;padding-right:14px;font-size:12px}
   .rank{display:none}
   .act{padding-right:12px}
   .more{display:none}
@@ -167,7 +183,7 @@ tr.detail:hover > td{background:var(--panel)}
   <div class="wrap">
     <div class="logo">[Site name]<span> .my</span></div>
     <div class="brand-pill">Tesla</div>
-    <nav class="nav" aria-label="Car brands"><b>Tesla</b><span>BYD<span class="soon">Soon</span></span><span>Xpeng<span class="soon">Soon</span></span></nav>
+    <nav class="nav" aria-label="More car brands"><span>BYD<span class="soon">Soon</span></span><span>Xpeng<span class="soon">Soon</span></span></nav>
     <span class="sample">Mock · sample prices</span>
   </div>
 </header>
@@ -232,14 +248,14 @@ const rm = (n, dp) => "RM " + n.toLocaleString("en-MY", {minimumFractionDigits: 
 
 // SAMPLE DATA ONLY. Not real premiums.
 const VARIANTS = [
-  {id:"m3-std",  model:"Model 3",   name:"Standard",              drive:"Rear-Wheel Drive",            si:165000},
-  {id:"m3-prwd", model:"Model 3",   name:"Premium",               drive:"Rear-Wheel Drive",            si:182000},
-  {id:"m3-plr",  model:"Model 3",   name:"Premium Long Range",    drive:"Rear-Wheel Drive",            si:196000},
-  {id:"m3-perf", model:"Model 3",   name:"Performance",           drive:"All-Wheel Drive",             si:236000},
-  {id:"my-prwd", model:"Model Y",   name:"Premium",               drive:"Rear-Wheel Drive",            si:199000},
-  {id:"my-plr",  model:"Model Y",   name:"Premium Long Range",    drive:"Rear-Wheel Drive",            si:215000},
-  {id:"my-awd",  model:"Model Y",   name:"Premium Long Range",    drive:"All-Wheel Drive",             si:233000},
-  {id:"myl-awd", model:"Model Y L", name:"Premium",               drive:"All-Wheel Drive · 6 seats",   si:252000}
+  {id:"m3-std",  model:"Model 3",   name:"Standard",              drive:"RWD",            si:165000},
+  {id:"m3-prwd", model:"Model 3",   name:"Premium",               drive:"RWD",            si:182000},
+  {id:"m3-plr",  model:"Model 3",   name:"Premium Long Range",    drive:"RWD",            si:196000},
+  {id:"m3-perf", model:"Model 3",   name:"Performance",           drive:"AWD",            si:236000},
+  {id:"my-prwd", model:"Model Y",   name:"Premium",               drive:"RWD",            si:199000},
+  {id:"my-plr",  model:"Model Y",   name:"Premium Long Range",    drive:"RWD",            si:215000},
+  {id:"my-awd",  model:"Model Y",   name:"Premium Long Range",    drive:"AWD",            si:233000},
+  {id:"myl-awd", model:"Model Y L", name:"Premium",               drive:"AWD · 6 seats",  si:252000}
 ];
 const MODELS = [...new Set(VARIANTS.map(v => v.model))];
 // Coverage columns. Values from the Figma draft (to be checked against each product wording).
@@ -259,7 +275,7 @@ const covCell = c => {
   if (c[0] === "n") return '<span class="n">– Not covered</span>';
   return '<b class="' + c[0] + '">' + (c[0] === "y" ? "✓ " : "+ ") + esc(c[1]) + '</b>' + (c[2] ? '<small>' + esc(c[2]) + '</small>' : "");
 };
-const REGIONS = [{id:"peninsular", name:"Peninsular Malaysia", factor:1}, {id:"east", name:"East Malaysia", factor:0.96, hint:"Sabah · Sarawak · Labuan"}];
+const REGIONS = [{id:"peninsular", name:"Peninsular", factor:1}, {id:"east", name:"East Malaysia", factor:0.96, hint:"Sabah · Sarawak · Labuan"}];
 const NCDS = [0, 25, 30, 38.33, 45, 55];
 const TAX = 0.08, STAMP = 10; // sample values
 
@@ -290,7 +306,7 @@ function render(){
 
   chips("#models", MODELS.map(m => ({v: m, label: esc(m)})), S.model, "model");
   chips("#variants", vs.map(x => ({v: x.id, label: esc(x.name) + '<small>' + esc(x.drive) + '</small>'})), S.variant, "variant");
-  chips("#regions", REGIONS.map(r => ({v: r.id, label: esc(r.name) + (r.hint ? '<small>' + r.hint + '</small>' : "")})), S.region, "region");
+  chips("#regions", REGIONS.map(r => ({v: r.id, label: esc(r.name) + (r.hint ? '<small class="hint">' + r.hint + '</small>' : "")})), S.region, "region");
   chips("#ncds", NCDS.map(n => ({v: n, label: n + "%"})), S.ncd, "ncd");
   document.querySelectorAll("#period button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === S.period)));
 

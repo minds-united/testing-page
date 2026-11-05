@@ -62,14 +62,13 @@ main{display:flex;flex-direction:column;gap:20px;padding-block:24px 48px}
 .filters{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
 .frow{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap}
 .flabel{width:74px;flex:none;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--subtle)}
-.chips{display:flex;flex-wrap:wrap;gap:8px;min-width:0;flex:1}
-.chip{border:1.5px solid var(--line-strong);background:var(--surface);border-radius:999px;padding:7px 15px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
-.chip:hover{border-color:var(--ink-soft)}
-.chip[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on)}
-.chip small{font-weight:500;opacity:.7;margin-left:4px}
-.seg{display:inline-flex;background:var(--panel);border-radius:999px;padding:3px;gap:2px}
-.seg button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
-.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+/* segmented bars: one rounded bar per option group, the chosen part filled */
+.chips,.seg{display:inline-flex;flex-wrap:nowrap;flex:0 1 auto;min-width:0;max-width:100%;gap:0;background:var(--panel);border:1px solid var(--line-strong);border-radius:999px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar,.seg::-webkit-scrollbar{display:none}
+.chip,.seg button{flex:none;border:0;border-radius:0;background:transparent;padding:9px 18px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.chip:hover,.seg button:hover{color:var(--ink)}
+.chip[aria-pressed="true"],.seg button[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink)}
+.chip small{font-weight:500;opacity:.65;margin-left:4px}
 .fnote{font-size:12.5px;color:var(--subtle);padding-left:88px}
 
 /* tables */
@@ -159,13 +158,10 @@ tr.detail:hover > td{background:var(--panel)}
   .frow{flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:6px;min-width:0}
   .logo span{display:none}
   .flabel{width:auto;font-size:10.5px;padding-inline:14px}
-  /* one row per option group, swipe sideways */
-  .chips{flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-inline:14px;scroll-padding-inline:14px;scrollbar-width:none;-webkit-overflow-scrolling:touch;
-    -webkit-mask-image:linear-gradient(to right,#000 88%,transparent);mask-image:linear-gradient(to right,#000 88%,transparent)}
-  .chips::-webkit-scrollbar{display:none}
-  .chip{padding:6px 12px;font-size:13.5px;flex:none}
+  /* one bar per option group; a long bar swipes sideways inside itself */
+  .chips,.seg{margin-inline:14px;max-width:calc(100% - 28px);align-self:flex-start}
+  .chip,.seg button{padding:8px 13px;font-size:13.5px}
   .chip .hint{display:none}
-  .seg{margin-inline:14px;align-self:flex-start}
   .fnote{padding-left:14px;padding-right:14px;font-size:12px}
   .rank{display:none}
   .act{padding-right:12px}

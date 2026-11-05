@@ -155,7 +155,9 @@ tr.detail:hover > td{background:var(--panel)}
   .intro h1{font-size:24px}
   .intro p{font-size:14px}
   .filters{padding:14px 0;gap:10px;border-radius:16px}
-  .frow{flex-direction:column;align-items:stretch;gap:6px}
+  /* nowrap matters: a wrapping column stretches each row to its full content width, which pushed the page sideways */
+  .frow{flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:6px;min-width:0}
+  .logo span{display:none}
   .flabel{width:auto;font-size:10.5px;padding-inline:14px}
   /* one row per option group, swipe sideways */
   .chips{flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-inline:14px;scroll-padding-inline:14px;scrollbar-width:none;-webkit-overflow-scrolling:touch;
@@ -184,7 +186,7 @@ tr.detail:hover > td{background:var(--panel)}
     <div class="logo">[Site name]<span> .my</span></div>
     <div class="brand-pill">Tesla</div>
     <nav class="nav" aria-label="More car brands"><span>BYD<span class="soon">Soon</span></span><span>Xpeng<span class="soon">Soon</span></span></nav>
-    <span class="sample">Mock · sample prices</span>
+    <span class="sample">Sample prices</span>
   </div>
 </header>
 

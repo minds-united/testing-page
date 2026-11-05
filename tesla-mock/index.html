@@ -92,7 +92,8 @@ th.num{text-align:right}
 .si{white-space:nowrap}
 .si small{display:block;font-size:12px;color:var(--muted)}
 .price{font-size:18px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
-.price small{display:block;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0}
+.price small{display:inline;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0;margin-left:3px}
+.yr{font-size:13px;font-weight:600;color:var(--ink-soft);white-space:nowrap;margin-top:2px}
 .tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:2px 6px;margin-bottom:4px}
 .diff{font-size:12px;color:var(--muted);white-space:nowrap}
 .act{text-align:right;padding-right:18px;white-space:nowrap}
@@ -189,20 +190,13 @@ tr.detail:hover > td{background:var(--panel)}
 <main class="wrap">
   <section class="intro">
     <h1>Tesla insurance prices, all in one table.</h1>
-    <p>Pick your car, region and NCD. Every insurer's yearly price shows up straight away. No forms, no sign-up.</p>
+    <p>Pick your car and NCD. Every insurer's price shows up straight away. No forms, no sign-up.</p>
   </section>
 
   <section class="filters" aria-label="Your car">
     <div class="frow"><span class="flabel" id="l-model">Model</span><div class="chips" id="models" role="group" aria-labelledby="l-model"></div></div>
     <div class="frow"><span class="flabel" id="l-var">Variant</span><div class="chips" id="variants" role="group" aria-labelledby="l-var"></div></div>
-    <div class="frow"><span class="flabel" id="l-reg">Region</span><div class="chips" id="regions" role="group" aria-labelledby="l-reg"></div></div>
     <div class="frow"><span class="flabel" id="l-ncd">NCD</span><div class="chips" id="ncds" role="group" aria-labelledby="l-ncd"></div></div>
-    <div class="frow"><span class="flabel" id="l-show">Show</span>
-      <div class="seg" id="period" role="group" aria-labelledby="l-show">
-        <button type="button" data-v="year" aria-pressed="true">Per year</button>
-        <button type="button" data-v="month" aria-pressed="false">Per month</button>
-      </div>
-    </div>
     <p class="fnote">NCD (No Claim Discount) comes from your current car. Not sure? Pick one to look around. You confirm the right one before paying.</p>
   </section>
 
@@ -218,7 +212,7 @@ tr.detail:hover > td{background:var(--panel)}
     </div>
   </section>
 
-  <p class="foot">Mock for discussion. All prices are sample numbers, not real quotes. Coverage amounts are copied from our Figma draft and still need checking against each insurer's product wording. On the real site every price comes from our backend, worked out from each insurer's premium table. Prices include service tax and stamp duty. "Per month" is the yearly price ÷ 12, to compare; pay-later plans show their own amounts at checkout.</p>
+  <p class="foot">Mock for discussion. All prices are sample numbers, not real quotes. Coverage amounts are copied from our Figma draft and still need checking against each insurer's product wording. On the real site every price comes from our backend, worked out from each insurer's premium table. Prices include service tax and stamp duty, for Peninsular Malaysia (East Malaysia is handled at checkout from the postcode). "Per month" is the yearly price ÷ 12; pay-later plans show their own amounts at checkout.</p>
 </main>
 
 <div class="sheet-wrap" id="sheet" hidden>
@@ -304,9 +298,16 @@ function render(){
 
   chips("#models", MODELS.map(m => ({v: m, label: esc(m)})), S.model, "model");
   chips("#variants", vs.map(x => ({v: x.id, label: esc(x.name) + '<small>' + esc(x.drive) + '</small>'})), S.variant, "variant");
-  chips("#regions", REGIONS.map(r => ({v: r.id, label: esc(r.name) + (r.hint ? '<small class="hint">' + r.hint + '</small>' : "")})), S.region, "region");
   chips("#ncds", NCDS.map(n => ({v: n, label: n + "%"})), S.ncd, "ncd");
   document.querySelectorAll("#period button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === S.period)));
+  // keep the chosen part of each bar in view when a bar is wider than the screen
+  document.querySelectorAll(".chips").forEach(bar => {
+    const on = bar.querySelector('[aria-pressed="true"]');
+    if (!on) return;
+    const left = on.offsetLeft, right = left + on.offsetWidth;
+    if (left < bar.scrollLeft) bar.scrollLeft = left - 8;
+    else if (right > bar.scrollLeft + bar.clientWidth) bar.scrollLeft = right - bar.clientWidth + 8;
+  });
 
   // left table
   const rows = INSURERS.map(ins => ({ins, p: priceOf(v, ins, S.region, S.ncd)})).sort((a, b) => a.p.total - b.p.total);
@@ -314,16 +315,16 @@ function render(){
   $("#t-prices").textContent = v.model + " " + v.name + " " + v.drive.split(" · ")[0];
   $("#t-prices-sub").textContent = REGIONS.find(r => r.id === S.region).name + " · NCD " + S.ncd + "% · " + rows.length + " insurers, cheapest first";
   $("#thead").innerHTML = '<tr><th class="rank">#</th><th class="sticky">Insurer</th>' +
-    '<th class="num">' + (S.period === "year" ? "Per year" : "Per month") + '</th><th>Sum insured</th>' +
+    '<th class="num">Price</th><th>Sum insured</th>' +
     COVERS.map(c => '<th class="cov">' + esc(c) + '</th>').join("") + '<th class="act"></th></tr>';
   const cols = 5 + COVERS.length;
   $("#prices").innerHTML = rows.map((r, i) => {
     const p = r.p, ins = r.ins, open = S.open === ins.id;
-    const diff = i === 0 ? '<span class="tag">Lowest price</span>' : '<span class="diff">+' + rm(amount(cents(p.total - low))) + '</span>';
+    const diff = i === 0 ? '<span class="tag">Lowest price</span>' : '<span class="diff">+' + rm(cents((p.total - low) / 12)) + ' / month</span>';
     let html = '<tr>' +
       '<td class="rank">' + (i + 1) + '</td>' +
       '<td class="sticky"><div class="ins"><span class="logo-dot" style="background:' + ins.color + '" aria-hidden="true">' + ins.mark + '</span><div><div class="ins-name">' + esc(ins.name) + '</div><div class="ins-plan">' + esc(ins.plan) + '</div></div></div></td>' +
-      '<td class="num">' + diff + '<div class="price">' + rm(amount(p.total)) + '<small>' + perLabel() + '</small></div></td>' +
+      '<td class="num">' + diff + '<div class="price">' + rm(cents(p.total / 12)) + '<small>/ month</small></div><div class="yr">' + rm(p.total) + ' / year</div></td>' +
       '<td class="si">' + rm(p.si, 0) + '<small>' + ins.basis + '</small></td>' +
       ins.cov.map(c => '<td class="cov">' + covCell(c) + '</td>').join("") +
       '<td class="act"><button type="button" class="more" data-open="' + ins.id + '" aria-expanded="' + open + '">' + (open ? "Hide" : "Price breakdown") + '</button><button type="button" class="choose" data-choose="' + ins.id + '">Choose</button></td>' +

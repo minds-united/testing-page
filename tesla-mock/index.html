@@ -81,7 +81,7 @@ main{display:flex;flex-direction:column;gap:12px;padding-block:12px 40px}
 .cards{display:flex;flex-direction:column;gap:8px}
 .qcard{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
 .qcard.chosen{border-color:var(--primary)}
-.qtop{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:10px}
+.qtop{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px}
 .rank{font-weight:700;color:var(--subtle);font-variant-numeric:tabular-nums;width:14px;text-align:center}
 .logo-dot{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:12px;color:#fff}
 .ins-name{font-weight:600;line-height:1.25}
@@ -302,7 +302,7 @@ function renderResults(){
   $("#cards").innerHTML = rs.map((r, i) => {
     const p = r.p, ins = r.ins, open = S.open === ins.id;
     return '<article class="qcard' + (S.chosen === ins.id ? " chosen" : "") + '">' +
-      '<div class="qtop"><span class="rank">' + (i + 1) + '</span>' +
+      '<div class="qtop">' +
         '<span class="logo-dot" style="background:' + ins.color + '" aria-hidden="true">' + ins.mark + '</span>' +
         '<div><div class="ins-name">' + esc(ins.name) + '</div><div class="ins-plan">' + esc(ins.plan) + '</div>' + (i === 0 ? '<span class="tag">Lowest price</span>' : "") + '</div>' +
         '<div class="pr"><div class="m">' + rm(p.month) + '<small>/mo</small></div><div class="y">' + rm(p.total) + ' / year</div></div></div>' +
@@ -316,10 +316,10 @@ function renderResults(){
   }).join("");
 
   // wide screens: one table with the cover columns
-  $("#thead").innerHTML = '<tr><th>#</th><th>Insurer</th><th class="num">Price</th><th>Sum insured</th>' + COVERS.map(c => '<th>' + esc(c) + '</th>').join("") + '<th></th></tr>';
+  $("#thead").innerHTML = '<tr><th>Insurer</th><th class="num">Price</th><th>Sum insured</th>' + COVERS.map(c => '<th>' + esc(c) + '</th>').join("") + '<th></th></tr>';
   $("#tbody").innerHTML = rs.map((r, i) => {
     const p = r.p, ins = r.ins;
-    return '<tr' + (S.chosen === ins.id ? ' class="chosen"' : "") + '><td class="rank">' + (i + 1) + '</td>' +
+    return '<tr' + (S.chosen === ins.id ? ' class="chosen"' : "") + '>' +
       '<td><div style="display:flex;gap:10px;align-items:center"><span class="logo-dot" style="background:' + ins.color + '" aria-hidden="true">' + ins.mark + '</span><div><div class="ins-name">' + esc(ins.name) + '</div><div class="ins-plan">' + esc(ins.plan) + '</div></div></div></td>' +
       '<td class="num pr">' + (i === 0 ? '<span class="tag">Lowest price</span>' : "") + '<div class="m">' + rm(p.month) + '<small>/mo</small></div><div class="y">' + rm(p.total) + ' / year</div></td>' +
       '<td class="cv"><b>' + rm(p.si, 0) + '</b><small>' + ins.basis + '</small></td>' +

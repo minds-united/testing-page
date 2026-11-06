@@ -10,168 +10,160 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: paultan-style data page. Dark top bar, one filter card of chips, then two tables side by side (prices for the chosen car | every Tesla's lowest price). Tokens follow apps/web globals.css. */
+/* Layout: mobile first. Slim top bar, one compact box of segmented grids (5 choices: model, variant, NCD, 2 add-ons), then the ranked prices, then checkout on the same page once an insurer is chosen. Tokens follow apps/web globals.css. */
 :root{
   --ink:#171a20; --ink-soft:#393c41; --muted:#5c5e62; --subtle:#86868b;
   --surface:#ffffff; --canvas:#f5f5f7; --panel:#f4f4f4; --line:#e5e5e5; --line-strong:#d0d1d2;
-  --primary:#3e6ae1; --primary-soft:#e8eefc; --link:#0066cc; --success:#12805c; --success-soft:#e3f3ec; --accent:#b64400; --accent-soft:#fbeee6;
-  --bar:#171a20; --bar-ink:#ffffff; --bar-muted:#a3a6ab; --chip-on:#171a20; --chip-on-ink:#ffffff; --scrim:rgba(10,12,16,.45);
+  --primary:#3e6ae1; --primary-soft:#e8eefc; --link:#0066cc; --success:#12805c; --success-soft:#e3f3ec; --accent:#b64400; --accent-soft:#fbeee6; --danger:#b3261e;
+  --bar:#171a20; --bar-ink:#ffffff; --on:#171a20; --on-ink:#ffffff; --tag:#f5c451; --tag-ink:#171a20;
   --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --ink:#f2f3f5; --ink-soft:#d4d6da; --muted:#a3a6ab; --subtle:#7d8086;
     --surface:#17191d; --canvas:#0e0f12; --panel:#1f2226; --line:#2a2d32; --line-strong:#3a3e44;
-    --primary:#7f9ff0; --primary-soft:#1d2740; --link:#7fb2f0; --success:#53c497; --success-soft:#14301f; --accent:#f09a62; --accent-soft:#3a2416;
-    --bar:#000000; --bar-ink:#ffffff; --bar-muted:#8d9096; --chip-on:#f2f3f5; --chip-on-ink:#17191d; --scrim:rgba(0,0,0,.6);
+    --primary:#7f9ff0; --primary-soft:#1d2740; --link:#7fb2f0; --success:#53c497; --success-soft:#14301f; --accent:#f09a62; --accent-soft:#3a2416; --danger:#f2877f;
+    --bar:#000000; --bar-ink:#ffffff; --on:#f2f3f5; --on-ink:#17191d; --tag:#f5c451; --tag-ink:#171a20;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --ink:#f2f3f5; --ink-soft:#d4d6da; --muted:#a3a6ab; --subtle:#7d8086;
   --surface:#17191d; --canvas:#0e0f12; --panel:#1f2226; --line:#2a2d32; --line-strong:#3a3e44;
-  --primary:#7f9ff0; --primary-soft:#1d2740; --link:#7fb2f0; --success:#53c497; --success-soft:#14301f; --accent:#f09a62; --accent-soft:#3a2416;
-  --bar:#000000; --bar-ink:#ffffff; --bar-muted:#8d9096; --chip-on:#f2f3f5; --chip-on-ink:#17191d; --scrim:rgba(0,0,0,.6);
+  --primary:#7f9ff0; --primary-soft:#1d2740; --link:#7fb2f0; --success:#53c497; --success-soft:#14301f; --accent:#f09a62; --accent-soft:#3a2416; --danger:#f2877f;
+  --bar:#000000; --bar-ink:#ffffff; --on:#f2f3f5; --on-ink:#17191d; --tag:#f5c451; --tag-ink:#171a20;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-body{background:var(--canvas);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+body{background:var(--canvas);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bar)}
-button{font:inherit;color:inherit}
+button,input{font:inherit;color:inherit}
 h1,h2,h3,p{margin:0}
 :focus-visible{outline:2px solid var(--primary);outline-offset:2px}
-.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px))}
 
 /* top bar */
 .bar{background:var(--bar);color:var(--bar-ink);position:sticky;top:env(safe-area-inset-top,0px);z-index:6}
-.bar .wrap{display:flex;align-items:center;gap:22px;padding-block:14px;overflow-x:auto}
-.logo{font-weight:700;font-size:19px;letter-spacing:-.02em;white-space:nowrap}
-.logo span{color:var(--bar-muted);font-weight:500}
-.brand-pill{background:var(--bar-ink);color:var(--bar);border-radius:999px;padding:7px 16px;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
-.nav{display:flex;gap:18px;font-weight:600;font-size:14px;color:var(--bar-muted);white-space:nowrap}
-.nav b{color:var(--bar-ink);font-weight:600}
-.soon{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--bar-muted);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:2px}
-.sample{margin-left:auto;font-size:12px;font-weight:600;color:var(--bar);background:#f5c451;border-radius:999px;padding:4px 10px;white-space:nowrap}
+.bar .wrap{display:flex;align-items:center;gap:10px;padding-block:10px}
+.logo{font-weight:700;font-size:17px;letter-spacing:-.02em;white-space:nowrap}
+.brand-pill{background:var(--bar-ink);color:var(--bar);border-radius:999px;padding:4px 11px;font-weight:700;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase}
+.sample{margin-left:auto;font-size:11px;font-weight:700;color:var(--tag-ink);background:var(--tag);border-radius:999px;padding:3px 9px;white-space:nowrap}
 
-main{display:flex;flex-direction:column;gap:20px;padding-block:24px 48px}
-.intro{display:flex;flex-direction:column;gap:6px;padding-top:8px}
-.intro h1{font-size:clamp(26px,3.6vw,38px);font-weight:700;letter-spacing:-.025em;text-wrap:balance}
-.intro p{color:var(--muted);max-width:62ch}
+main{display:flex;flex-direction:column;gap:12px;padding-block:12px 40px}
+.intro{display:flex;flex-direction:column;gap:2px}
+.intro h1{font-size:21px;font-weight:700;letter-spacing:-.02em}
+.intro p{font-size:13.5px;color:var(--muted)}
+.intro b{color:var(--ink);font-weight:600}
 
-/* filters */
-.filters{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
-.frow{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap}
-.flabel{width:74px;flex:none;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--subtle)}
-/* segmented bars: one rounded bar per option group, the chosen part filled */
-.chips,.seg{display:inline-flex;flex-wrap:nowrap;flex:0 1 auto;min-width:0;max-width:100%;gap:0;background:var(--panel);border:1px solid var(--line-strong);border-radius:999px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.chips::-webkit-scrollbar,.seg::-webkit-scrollbar{display:none}
-.chip,.seg button{flex:none;border:0;border-radius:0;background:transparent;padding:9px 18px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
-.chip:hover,.seg button:hover{color:var(--ink)}
-.chip[aria-pressed="true"],.seg button[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink)}
-.chip small{font-weight:500;opacity:.65;margin-left:4px}
-.fnote{font-size:12.5px;color:var(--subtle);padding-left:88px}
+/* choices: segmented grids that wrap into rows, never slide */
+.choices{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.crow{display:flex;flex-direction:column;gap:5px;min-width:0}
+.clabel{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--subtle)}
+.segs{display:grid;gap:1px;background:var(--line-strong);border:1px solid var(--line-strong);border-radius:12px;overflow:hidden}
+.segs.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.segs.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.seg-btn{border:0;background:var(--panel);padding:9px 6px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;line-height:1.2;min-width:0;transition:background .15s,color .15s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;text-align:center}
+.seg-btn small{font-size:11.5px;font-weight:500;opacity:.75}
+.seg-btn:hover{color:var(--ink)}
+.seg-btn[aria-pressed="true"]{background:var(--on);color:var(--on-ink)}
+.seg-btn .tick{font-size:12px}
+@media (max-width: 759px){
+  /* an odd last box in a 2-column grid takes the full row, so no empty gap shows */
+  .segs.c2 > :last-child:nth-child(odd){grid-column:1 / -1}
+}
 
-/* tables */
-.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:20px;align-items:start}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;min-width:0;overflow:hidden}
-.card-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 22px 14px}
-.card-h h2{font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
-.card-h p{font-size:13px;color:var(--muted);margin-top:3px}
-.scroll{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-th{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);text-align:left;padding:10px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:14px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
-tr:last-child > td{border-bottom:0}
-.num{text-align:right}
-th.num{text-align:right}
-.rank{width:34px;color:var(--subtle);font-weight:600;text-align:center;padding-left:18px}
-.ins{display:flex;align-items:center;gap:11px;min-width:0}
-.logo-dot{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:12px;color:#fff;flex:none}
-.ins-name{font-weight:600;white-space:nowrap}
-.ins-plan{font-size:12.5px;color:var(--muted);white-space:nowrap}
-.si{white-space:nowrap}
-.si small{display:block;font-size:12px;color:var(--muted)}
-.price{font-size:18px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
-.price small{display:inline;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0;margin-left:3px}
-.yr{font-size:13px;font-weight:600;color:var(--ink-soft);white-space:nowrap;margin-top:2px}
-.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:2px 6px;margin-bottom:4px}
-.diff{font-size:12px;color:var(--muted);white-space:nowrap}
-.act{text-align:right;padding-right:18px;white-space:nowrap}
-.choose{border:0;background:var(--primary);color:#fff;border-radius:999px;padding:9px 18px;font-weight:600;font-size:14px;cursor:pointer}
-.choose:hover{filter:brightness(1.08)}
-.more{border:0;background:none;color:var(--link);font-size:13px;font-weight:500;cursor:pointer;padding:6px 4px;margin-right:6px}
-.detail td{background:var(--panel);padding:14px 22px}
-.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px 28px}
-.detail h3{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:6px}
-.bd{display:grid;grid-template-columns:1fr auto;gap:3px 14px;font-size:13.5px}
+/* results */
+.res-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-top:4px}
+.res-h h2{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.res-h p{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.res-sub{font-size:12.5px;color:var(--muted);margin-top:-8px}
+
+.cards{display:flex;flex-direction:column;gap:8px}
+.qcard{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.qcard.chosen{border-color:var(--primary)}
+.qtop{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;align-items:center;gap:10px}
+.rank{font-weight:700;color:var(--subtle);font-variant-numeric:tabular-nums;width:14px;text-align:center}
+.logo-dot{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:12px;color:#fff}
+.ins-name{font-weight:600;line-height:1.25}
+.ins-plan{font-size:12.5px;color:var(--muted)}
+.tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:2px 6px;margin-top:3px}
+.pr{text-align:right;font-variant-numeric:tabular-nums}
+.pr .m{font-size:19px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.pr .m small{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0;margin-left:2px}
+.pr .y{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.qbtns{display:flex;gap:8px}
+.btn{border:0;background:var(--primary);color:#fff;border-radius:999px;padding:10px 18px;font-weight:600;font-size:14.5px;cursor:pointer;flex:1}
+.btn:hover{filter:brightness(1.08)}
+.btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line-strong);flex:0 0 auto}
+.cover{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:10px}
+.cov-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr auto;gap:5px 12px;font-size:13.5px}
+.cov-list .v{text-align:right;font-weight:600}
+.y-ok{color:var(--success)}
+.y-add{color:var(--accent)}
+.y-no{color:var(--subtle);font-weight:500}
+.bd{display:grid;grid-template-columns:1fr auto;gap:3px 12px;font-size:13px;font-variant-numeric:tabular-nums;margin:0}
 .bd dt{color:var(--muted)}
 .bd dd{margin:0;text-align:right}
 .bd .t{font-weight:700;border-top:1px solid var(--line-strong);padding-top:4px}
-.ben{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13.5px}
-.ben li{display:flex;gap:7px}
-.ben .y{color:var(--success);font-weight:700}
-.ben .n{color:var(--subtle)}
+.mini-h{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--subtle)}
 
-/* coverage columns */
-table.wide{min-width:1080px}
-th.cov{white-space:normal;line-height:1.25;min-width:96px;max-width:120px;vertical-align:bottom}
-td.cov{font-size:13px;line-height:1.3;color:var(--ink-soft)}
-td.cov b{display:block;font-size:14px}
-td.cov small{display:block;color:var(--muted);font-size:11.5px}
-.y{color:var(--success)}
-.a{color:var(--accent)}
-.n{color:var(--subtle);font-weight:500}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);white-space:nowrap}
-.legend b{margin-right:4px}
-.sticky{position:sticky;left:0;background:var(--surface);z-index:1}
-tr.detail .sticky{background:var(--panel)}
-td.sticky,th.sticky{box-shadow:1px 0 0 var(--line)}
-tbody tr:hover > td{background:var(--canvas)}
-tbody tr:hover > td.sticky{background:var(--canvas)}
-tr.detail:hover > td{background:var(--panel)}
+/* desktop table (wide screens only) */
+.tablecard{display:none;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:bottom;line-height:1.25}
+td{padding:13px 10px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:13.5px}
+tr:last-child > td{border-bottom:0}
+tr.chosen > td{background:var(--primary-soft)}
+td.num,th.num{text-align:right}
+td.cv b{display:block;font-size:13.5px}
+td.cv small{display:block;color:var(--muted);font-size:11.5px}
 
-.foot{font-size:12.5px;color:var(--subtle);max-width:80ch}
+/* checkout, same page */
+.checkout{background:var(--surface);border:1.5px solid var(--primary);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:16px;scroll-margin-top:60px}
+.checkout h2{font-size:19px;font-weight:700;letter-spacing:-.015em}
+.sec{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+.sec h3{font-size:15px;font-weight:700}
+.plan{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:13.5px;font-variant-numeric:tabular-nums}
+.plan dt{color:var(--muted)}
+.plan dd{margin:0;text-align:right;font-weight:600}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12.5px;font-weight:600;color:var(--muted)}
+.field input{height:44px;border:1.5px solid var(--line-strong);border-radius:11px;padding:0 12px;background:var(--surface);font-size:16px;width:100%}
+.field input:focus{outline:none;border-color:var(--primary)}
+.field input[aria-invalid="true"]{border-color:var(--danger)}
+.field .msg{font-size:12px;color:var(--danger);font-weight:600}
+.field .msg:empty{display:none}
+.field .hint{font-size:12px;color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pgroup{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--subtle);margin-top:2px}
+.popt{display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:center;padding:11px 12px;border:1.5px solid var(--line-strong);border-radius:12px;cursor:pointer;font-size:14px}
+.popt input{accent-color:var(--primary);width:18px;height:18px;margin:0}
+.popt:has(input:checked){border-color:var(--primary);background:var(--primary-soft)}
+.popt .amt{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.consent{display:grid;grid-template-columns:20px 1fr;gap:10px;font-size:13px;color:var(--ink-soft);align-items:start}
+.consent input{accent-color:var(--primary);width:18px;height:18px;margin:1px 0 0}
+.total{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.total strong{font-size:21px;font-variant-numeric:tabular-nums}
+.err{color:var(--danger);font-size:13px;font-weight:600}
+.done{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.done .ok{font-size:13px;background:var(--success-soft);border-radius:10px;padding:10px 12px}
+.foot{font-size:12px;color:var(--subtle);max-width:80ch}
 
-/* chosen sheet */
-.sheet-wrap{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
-.sheet{background:var(--surface);color:var(--ink);border-radius:20px;width:min(460px,100%);padding:24px;display:flex;flex-direction:column;gap:14px;max-height:90vh;overflow-y:auto}
-.sheet h2{font-size:21px;font-weight:700;letter-spacing:-.015em}
-.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;counter-reset:s}
-.steps li{display:flex;gap:10px;align-items:baseline;font-size:14.5px;counter-increment:s}
-.steps li::before{content:counter(s);width:22px;height:22px;flex:none;border-radius:50%;background:var(--panel);display:grid;place-items:center;font-size:12px;font-weight:700}
-.steps li.now::before{background:var(--ink);color:var(--surface)}
-.callout{font-size:13px;background:var(--success-soft);color:var(--ink);border-radius:12px;padding:10px 12px}
-.sheet .row{display:flex;gap:10px;justify-content:flex-end}
-.ghost{border:1.5px solid var(--line-strong);background:transparent;border-radius:999px;padding:9px 18px;font-weight:600;cursor:pointer}
-
-@media (max-width: 960px){ .grid{grid-template-columns:minmax(0,1fr)} }
-@media (max-width: 640px){
-  .bar .wrap{gap:12px;padding-block:12px}
-  .logo{font-size:17px}
-  .nav{display:none}
-  .brand-pill{padding:5px 12px;font-size:12px}
-  .sample{font-size:11px;padding:3px 8px}
-  main{gap:16px;padding-block:16px 40px}
-  .intro h1{font-size:24px}
-  .intro p{font-size:14px}
-  .filters{padding:14px 0;gap:10px;border-radius:16px}
-  /* nowrap matters: a wrapping column stretches each row to its full content width, which pushed the page sideways */
-  .frow{flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:6px;min-width:0}
-  .logo span{display:none}
-  .flabel{width:auto;font-size:10.5px;padding-inline:14px}
-  /* one bar per option group; a long bar swipes sideways inside itself */
-  .chips,.seg{margin-inline:14px;max-width:calc(100% - 28px);align-self:flex-start}
-  .chip,.seg button{padding:8px 13px;font-size:13.5px}
-  .chip .hint{display:none}
-  .fnote{padding-left:14px;padding-right:14px;font-size:12px}
-  .rank{display:none}
-  .act{padding-right:12px}
-  .more{display:none}
-  .ins-plan{white-space:normal}
-  .logo-dot{width:28px;height:28px;font-size:11px}
-  td{padding:12px 8px}
-  .choose{padding:8px 14px}
-  .card-h{padding:18px 16px 12px}
+@media (min-width: 760px){
+  .wrap{padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+  main{gap:16px;padding-block:20px 48px}
+  .intro h1{font-size:30px}
+  .intro p{font-size:15px}
+  .choices{padding:16px 18px;display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px 16px;align-items:center}
+  .crow{display:contents}
+  .segs.c2.wide-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .segs.c3.wide-6{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .segs.c2.addons{max-width:420px}
+  .segs.c3.models{max-width:480px}
+  .cards{display:none}
+  .tablecard{display:block}
+  .checkout{padding:22px;max-width:760px}
 }
 @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
 </style>
@@ -180,55 +172,38 @@ tr.detail:hover > td{background:var(--panel)}
 
 <header class="bar">
   <div class="wrap">
-    <div class="logo">[Site name]<span> .my</span></div>
-    <div class="brand-pill">Tesla</div>
-    <nav class="nav" aria-label="More car brands"><span>BYD<span class="soon">Soon</span></span><span>Xpeng<span class="soon">Soon</span></span></nav>
+    <span class="logo">[Site name]</span>
+    <span class="brand-pill">Tesla</span>
     <span class="sample">Sample prices</span>
   </div>
 </header>
 
 <main class="wrap">
   <section class="intro">
-    <h1>Tesla insurance prices, all in one table.</h1>
-    <p>Pick your car and NCD. Every insurer's price shows up straight away. No forms, no sign-up.</p>
+    <h1>Tesla insurance, compared.</h1>
+    <p>Pay monthly with <b>Atome</b>, <b>SPayLater</b> or <b>GrabPay Later</b>.</p>
   </section>
 
-  <section class="filters" aria-label="Your car">
-    <div class="frow"><span class="flabel" id="l-model">Model</span><div class="chips" id="models" role="group" aria-labelledby="l-model"></div></div>
-    <div class="frow"><span class="flabel" id="l-var">Variant</span><div class="chips" id="variants" role="group" aria-labelledby="l-var"></div></div>
-    <div class="frow"><span class="flabel" id="l-ncd">NCD</span><div class="chips" id="ncds" role="group" aria-labelledby="l-ncd"></div></div>
-    <p class="fnote">NCD (No Claim Discount) comes from your current car. Not sure? Pick one to look around. You confirm the right one before paying.</p>
+  <section class="choices" aria-label="Your car and cover">
+    <div class="crow"><span class="clabel" id="l-model">Model</span><div class="segs c3 models" id="models" role="group" aria-labelledby="l-model"></div></div>
+    <div class="crow"><span class="clabel" id="l-var">Variant</span><div class="segs c2" id="variants" role="group" aria-labelledby="l-var"></div></div>
+    <div class="crow"><span class="clabel" id="l-ncd">NCD</span><div class="segs c3 wide-6" id="ncds" role="group" aria-labelledby="l-ncd"></div></div>
+    <div class="crow"><span class="clabel" id="l-add">Add-ons</span><div class="segs c2 addons" id="addons" role="group" aria-labelledby="l-add"></div></div>
   </section>
 
-  <section class="card" aria-labelledby="t-prices">
-    <div class="card-h"><div><h2 id="t-prices"></h2><p id="t-prices-sub"></p></div>
-      <div class="legend" aria-label="Key"><span><b class="y">✓</b> Included</span><span><b class="a">+</b> Add-on</span><span><b class="n">–</b> Not covered</span></div>
-    </div>
-    <div class="scroll">
-      <table class="wide">
-        <thead id="thead"></thead>
-        <tbody id="prices"></tbody>
-      </table>
-    </div>
+  <div class="res-h"><h2 id="res-title"></h2><p>Cheapest first</p></div>
+  <p class="res-sub" id="res-sub"></p>
+
+  <div class="cards" id="cards"></div>
+
+  <section class="tablecard" aria-labelledby="res-title">
+    <div class="scroll"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
   </section>
 
-  <p class="foot">Mock for discussion. All prices are sample numbers, not real quotes. Coverage amounts are copied from our Figma draft and still need checking against each insurer's product wording. On the real site every price comes from our backend, worked out from each insurer's premium table. Prices include service tax and stamp duty, for Peninsular Malaysia (East Malaysia is handled at checkout from the postcode). "Per month" is the yearly price ÷ 12; pay-later plans show their own amounts at checkout.</p>
+  <section class="checkout" id="checkout" hidden aria-labelledby="co-title"></section>
+
+  <p class="foot">Mock for discussion. All prices are sample numbers, not real quotes, for Peninsular Malaysia (East Malaysia is sorted at checkout from the postcode). Coverage amounts are copied from our Figma draft and still need checking against each insurer's wording. Prices include service tax and stamp duty. "Per month" is the yearly price ÷ 12; the real number of instalments depends on the pay-later provider.</p>
 </main>
-
-<div class="sheet-wrap" id="sheet" hidden>
-  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="s-title">
-    <h2 id="s-title"></h2>
-    <p id="s-sub" style="color:var(--muted)"></p>
-    <ol class="steps">
-      <li class="now">Choose an insurer: done</li>
-      <li>Add-ons</li>
-      <li>Your details: IC, plate number (VRN), postcode</li>
-      <li>Price check, then pay (card, FPX, or pay later)</li>
-    </ol>
-    <p class="callout">This click is where the order gets saved on the real site (status <b>checkout</b>). Browsing above saves nothing.</p>
-    <div class="row"><button type="button" class="ghost" id="s-close">Back to prices</button></div>
-  </div>
-</div>
 
 <script>
 (function(){
@@ -240,133 +215,221 @@ const rm = (n, dp) => "RM " + n.toLocaleString("en-MY", {minimumFractionDigits: 
 
 // SAMPLE DATA ONLY. Not real premiums.
 const VARIANTS = [
-  {id:"m3-std",  model:"Model 3",   name:"Standard",              drive:"RWD",            si:165000},
-  {id:"m3-prwd", model:"Model 3",   name:"Premium",               drive:"RWD",            si:182000},
-  {id:"m3-plr",  model:"Model 3",   name:"Premium Long Range",    drive:"RWD",            si:196000},
-  {id:"m3-perf", model:"Model 3",   name:"Performance",           drive:"AWD",            si:236000},
-  {id:"my-prwd", model:"Model Y",   name:"Premium",               drive:"RWD",            si:199000},
-  {id:"my-plr",  model:"Model Y",   name:"Premium Long Range",    drive:"RWD",            si:215000},
-  {id:"my-awd",  model:"Model Y",   name:"Premium Long Range",    drive:"AWD",            si:233000},
-  {id:"myl-awd", model:"Model Y L", name:"Premium",               drive:"AWD · 6 seats",  si:252000}
+  {id:"m3-std",  model:"Model 3",   name:"Standard",           drive:"RWD",           si:165000},
+  {id:"m3-prwd", model:"Model 3",   name:"Premium",            drive:"RWD",           si:182000},
+  {id:"m3-plr",  model:"Model 3",   name:"Premium Long Range", drive:"RWD",           si:196000},
+  {id:"m3-perf", model:"Model 3",   name:"Performance",        drive:"AWD",           si:236000},
+  {id:"my-prwd", model:"Model Y",   name:"Premium",            drive:"RWD",           si:199000},
+  {id:"my-plr",  model:"Model Y",   name:"Premium Long Range", drive:"RWD",           si:215000},
+  {id:"my-awd",  model:"Model Y",   name:"Premium Long Range", drive:"AWD",           si:233000},
+  {id:"myl-awd", model:"Model Y L", name:"Premium",            drive:"AWD · 6 seats", si:252000}
 ];
 const MODELS = [...new Set(VARIANTS.map(v => v.model))];
-// Coverage columns. Values from the Figma draft (to be checked against each product wording).
-// Each cell: ["y" | "a" | "n", main text, small note]
+const NCDS = [0, 25, 30, 38.33, 45, 55];
+const ADDONS = [
+  {id:"perils", name:"Special perils", note:"Flood, storm, landslide", price: si => cents(si * 0.005)},
+  {id:"ws",     name:"Windscreen",     note:"Up to RM 1,500",          price: () => 225}
+];
 const COVERS = ["EV home charger", "Liability at EV charging", "Portable charging cable", "Public EV charger", "24/7 roadside help", "Personal accident", "Key care"];
 const INSURERS = [
-  {id:"tm",  name:"Takaful Malaysia", plan:"Takaful myMotor", mark:"TM", color:"#0b7a5a", rate:0.0262, siAdj:0.995, basis:"Market value", takaful:true,
+  {id:"tm", name:"Takaful Malaysia", plan:"Takaful myMotor", mark:"TM", color:"#0b7a5a", rate:0.0262, siAdj:0.995, basis:"Market value", takaful:true,
    cov:[["n"], ["n"], ["n"], ["n"], ["y", "Towing", "by plan"], ["y", "Included", "by plan"], ["n"]]},
-  {id:"zg",  name:"Zurich General",   plan:"Z-TeslaCare",     mark:"ZG", color:"#1f4ea8", rate:0.0275, siAdj:1,     basis:"Agreed value", takaful:false,
+  {id:"zg", name:"Zurich General", plan:"Z-TeslaCare", mark:"ZG", color:"#1f4ea8", rate:0.0275, siAdj:1, basis:"Agreed value", takaful:false,
    cov:[["y", "RM 15,000"], ["y", "RM 50,000"], ["y", "RM 2,000"], ["y", "RM 20,000"], ["y", "Unlimited"], ["y", "RM 20,000"], ["y", "RM 2,000"]]},
-  {id:"zt",  name:"Zurich Takaful",   plan:"EV Protect",      mark:"ZT", color:"#2f6fd0", rate:0.0284, siAdj:1,     basis:"Agreed value", takaful:true,
+  {id:"zt", name:"Zurich Takaful", plan:"EV Protect", mark:"ZT", color:"#2f6fd0", rate:0.0284, siAdj:1, basis:"Agreed value", takaful:true,
    cov:[["y", "RM 15,000"], ["y", "RM 50,000"], ["y", "RM 2,000"], ["y", "RM 20,000"], ["y", "Unlimited"], ["n"], ["n"]]},
-  {id:"az",  name:"Allianz",          plan:"EV Shield",       mark:"AZ", color:"#003781", rate:0.0301, siAdj:0.985, basis:"Agreed value", takaful:false,
+  {id:"az", name:"Allianz", plan:"EV Shield", mark:"AZ", color:"#003781", rate:0.0301, siAdj:0.985, basis:"Agreed value", takaful:false,
    cov:[["y", "RM 15,000"], ["y", "RM 50,000", "home charger only"], ["y", "RM 2,000"], ["y", "RM 5,000"], ["y", "Included"], ["a", "Add-on"], ["a", "Add-on"]]}
 ];
-const covCell = c => {
-  if (c[0] === "n") return '<span class="n">– Not covered</span>';
-  return '<b class="' + c[0] + '">' + (c[0] === "y" ? "✓ " : "+ ") + esc(c[1]) + '</b>' + (c[2] ? '<small>' + esc(c[2]) + '</small>' : "");
-};
-const REGIONS = [{id:"peninsular", name:"Peninsular", factor:1}, {id:"east", name:"East Malaysia", factor:0.96, hint:"Sabah · Sarawak · Labuan"}];
-const NCDS = [0, 25, 30, 38.33, 45, 55];
 const TAX = 0.08, STAMP = 10; // sample values
+const BNPL = [{id:"atome", name:"Atome"}, {id:"spaylater", name:"SPayLater"}, {id:"grab", name:"GrabPay Later"}];
+const FULL = [{id:"fpx", name:"Online banking (FPX)"}, {id:"card", name:"Credit or debit card"}];
 
-// One "backend" price: in the real site this whole table comes from GET /v1/public/b/tesla/prices.
-function priceOf(v, ins, regionId, ncd){
-  const region = REGIONS.find(r => r.id === regionId);
+// One "backend" price. On the real site the whole table comes from GET /v1/public/b/tesla/prices.
+function priceOf(v, ins, ncd, addons){
   const si = Math.round(v.si * ins.siAdj / 100) * 100;
-  const basic = cents(si * ins.rate * region.factor);
+  const basic = cents(si * ins.rate);
   const ncdAmt = cents(basic * ncd / 100);
-  const gross = cents(basic - ncdAmt);
+  const add = cents(ADDONS.reduce((s, a) => s + (addons[a.id] ? a.price(si) : 0), 0));
+  const gross = cents(basic - ncdAmt + add);
   const tax = cents(gross * TAX);
   const total = cents(gross + tax + STAMP);
-  return {si, basic, ncdAmt, gross, tax, stamp: STAMP, total};
+  return {si, basic, ncdAmt, add, tax, stamp: STAMP, total, month: cents(total / 12)};
 }
 
-const S = {model: "Model 3", variant: "m3-plr", region: "peninsular", ncd: 38.33, period: "year", open: null};
-const amount = t => S.period === "year" ? t : cents(t / 12);
-const perLabel = () => S.period === "year" ? "/ year" : "/ month";
+const S = {model:"Model 3", variant:"m3-plr", ncd:38.33, addons:{perils:false, ws:false}, open:null, chosen:null, done:false,
+  form:{name:"", ic:"", mobile:"", email:"", postcode:"", plate:""}, errors:{}, pay:"atome", agree:false, coErr:""};
+const variant = () => VARIANTS.find(x => x.id === S.variant);
 
-function chips(el, items, current, key){
-  $(el).innerHTML = items.map(it => '<button type="button" class="chip" data-k="' + key + '" data-v="' + esc(it.v) + '" aria-pressed="' + (String(it.v) === String(current)) + '">' + it.label + '</button>').join("");
+function seg(items, cur, key, multi){
+  return items.map(it => {
+    const on = multi ? !!S.addons[it.v] : String(it.v) === String(cur);
+    return '<button type="button" class="seg-btn" data-k="' + key + '" data-v="' + esc(it.v) + '" aria-pressed="' + on + '">' + it.label + '</button>';
+  }).join("");
+}
+const covText = c => c[0] === "n" ? '<span class="y-no">Not covered</span>' : '<span class="' + (c[0] === "y" ? "y-ok" : "y-add") + '">' + (c[0] === "y" ? "✓ " : "+ ") + esc(c[1]) + '</span>';
+function breakdown(p, ins){
+  return '<dl class="bd">' +
+    '<dt>' + (ins.takaful ? "Basic contribution" : "Basic premium") + '</dt><dd>' + rm(p.basic) + '</dd>' +
+    '<dt>NCD ' + S.ncd + '%</dt><dd>− ' + rm(p.ncdAmt) + '</dd>' +
+    (p.add ? '<dt>Add-ons</dt><dd>' + rm(p.add) + '</dd>' : "") +
+    '<dt>Service tax (8%, sample)</dt><dd>' + rm(p.tax) + '</dd>' +
+    '<dt>Stamp duty</dt><dd>' + rm(p.stamp) + '</dd>' +
+    '<dt class="t">Total per year</dt><dd class="t">' + rm(p.total) + '</dd></dl>';
 }
 
-function render(){
+function renderChoices(){
   const vs = VARIANTS.filter(v => v.model === S.model);
   if (!vs.some(v => v.id === S.variant)) S.variant = vs[0].id;
-  const v = VARIANTS.find(x => x.id === S.variant);
+  $("#models").innerHTML = seg(MODELS.map(m => ({v:m, label:esc(m)})), S.model, "model");
+  const vEl = $("#variants");
+  vEl.className = "segs c2" + (vs.length >= 4 ? " wide-4" : "");
+  vEl.style.gridTemplateColumns = vs.length === 1 ? "1fr" : (vs.length === 3 && innerWidth >= 760 ? "repeat(3,minmax(0,1fr))" : "");
+  vEl.innerHTML = seg(vs.map(x => ({v:x.id, label:esc(x.name) + '<small>' + esc(x.drive) + '</small>'})), S.variant, "variant");
+  $("#ncds").innerHTML = seg(NCDS.map(n => ({v:n, label:n + "%"})), S.ncd, "ncd");
+  $("#addons").innerHTML = seg(ADDONS.map(a => ({v:a.id, label:(S.addons[a.id] ? '<span class="tick">✓ </span>' : "+ ") + esc(a.name) + '<small>' + esc(a.note) + '</small>'})), null, "addon", true);
+}
 
-  chips("#models", MODELS.map(m => ({v: m, label: esc(m)})), S.model, "model");
-  chips("#variants", vs.map(x => ({v: x.id, label: esc(x.name) + '<small>' + esc(x.drive) + '</small>'})), S.variant, "variant");
-  chips("#ncds", NCDS.map(n => ({v: n, label: n + "%"})), S.ncd, "ncd");
-  document.querySelectorAll("#period button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === S.period)));
-  // keep the chosen part of each bar in view when a bar is wider than the screen
-  document.querySelectorAll(".chips").forEach(bar => {
-    const on = bar.querySelector('[aria-pressed="true"]');
-    if (!on) return;
-    const left = on.offsetLeft, right = left + on.offsetWidth;
-    if (left < bar.scrollLeft) bar.scrollLeft = left - 8;
-    else if (right > bar.scrollLeft + bar.clientWidth) bar.scrollLeft = right - bar.clientWidth + 8;
-  });
+function rows(){
+  const v = variant();
+  return INSURERS.map(ins => ({ins, p: priceOf(v, ins, S.ncd, S.addons)})).sort((a, b) => a.p.total - b.p.total);
+}
 
-  // left table
-  const rows = INSURERS.map(ins => ({ins, p: priceOf(v, ins, S.region, S.ncd)})).sort((a, b) => a.p.total - b.p.total);
-  const low = rows[0].p.total;
-  $("#t-prices").textContent = v.model + " " + v.name + " " + v.drive.split(" · ")[0];
-  $("#t-prices-sub").textContent = REGIONS.find(r => r.id === S.region).name + " · NCD " + S.ncd + "% · " + rows.length + " insurers, cheapest first";
-  $("#thead").innerHTML = '<tr><th class="rank">#</th><th class="sticky">Insurer</th>' +
-    '<th class="num">Price</th><th>Sum insured</th>' +
-    COVERS.map(c => '<th class="cov">' + esc(c) + '</th>').join("") + '<th class="act"></th></tr>';
-  const cols = 5 + COVERS.length;
-  $("#prices").innerHTML = rows.map((r, i) => {
+function renderResults(){
+  const v = variant(), rs = rows();
+  const picked = ADDONS.filter(a => S.addons[a.id]).map(a => a.name);
+  $("#res-title").textContent = v.model + " " + v.name + " " + v.drive.split(" · ")[0];
+  $("#res-sub").textContent = "NCD " + S.ncd + "% · " + (picked.length ? "with " + picked.join(" + ") : "no add-ons");
+
+  // phone: ranked cards
+  $("#cards").innerHTML = rs.map((r, i) => {
     const p = r.p, ins = r.ins, open = S.open === ins.id;
-    const diff = i === 0 ? '<span class="tag">Lowest price</span>' : '<span class="diff">+' + rm(cents((p.total - low) / 12)) + ' / month</span>';
-    let html = '<tr>' +
-      '<td class="rank">' + (i + 1) + '</td>' +
-      '<td class="sticky"><div class="ins"><span class="logo-dot" style="background:' + ins.color + '" aria-hidden="true">' + ins.mark + '</span><div><div class="ins-name">' + esc(ins.name) + '</div><div class="ins-plan">' + esc(ins.plan) + '</div></div></div></td>' +
-      '<td class="num">' + diff + '<div class="price">' + rm(cents(p.total / 12)) + '<small>/ month</small></div><div class="yr">' + rm(p.total) + ' / year</div></td>' +
-      '<td class="si">' + rm(p.si, 0) + '<small>' + ins.basis + '</small></td>' +
-      ins.cov.map(c => '<td class="cov">' + covCell(c) + '</td>').join("") +
-      '<td class="act"><button type="button" class="more" data-open="' + ins.id + '" aria-expanded="' + open + '">' + (open ? "Hide" : "Price breakdown") + '</button><button type="button" class="choose" data-choose="' + ins.id + '">Choose</button></td>' +
-      '</tr>';
-    if (open) {
-      const word = ins.takaful ? "Basic contribution" : "Basic premium";
-      html += '<tr class="detail"><td></td><td class="sticky" colspan="' + (cols - 1) + '"><div class="detail-grid" style="max-width:360px">' +
-        '<div><h3>Price breakdown (per year)</h3><dl class="bd">' +
-          '<dt>' + word + '</dt><dd>' + rm(p.basic) + '</dd>' +
-          '<dt>NCD ' + S.ncd + '%</dt><dd>− ' + rm(p.ncdAmt) + '</dd>' +
-          '<dt>Service tax (8%, sample)</dt><dd>' + rm(p.tax) + '</dd>' +
-          '<dt>Stamp duty</dt><dd>' + rm(p.stamp) + '</dd>' +
-          '<dt class="t">Total</dt><dd class="t">' + rm(p.total) + '</dd></dl></div>' +
-        '</div></td></tr>';
-    }
-    return html;
+    return '<article class="qcard' + (S.chosen === ins.id ? " chosen" : "") + '">' +
+      '<div class="qtop"><span class="rank">' + (i + 1) + '</span>' +
+        '<span class="logo-dot" style="background:' + ins.color + '" aria-hidden="true">' + ins.mark + '</span>' +
+        '<div><div class="ins-name">' + esc(ins.name) + '</div><div class="ins-plan">' + esc(ins.plan) + '</div>' + (i === 0 ? '<span class="tag">Lowest price</span>' : "") + '</div>' +
+        '<div class="pr"><div class="m">' + rm(p.month) + '<small>/mo</small></div><div class="y">' + rm(p.total) + ' / year</div></div></div>' +
+      '<div class="qbtns"><button type="button" class="btn btn-ghost" data-open="' + ins.id + '" aria-expanded="' + open + '">' + (open ? "Hide cover" : "See cover") + '</button>' +
+        '<button type="button" class="btn" data-choose="' + ins.id + '">' + (S.chosen === ins.id ? "Chosen ✓" : "Choose") + '</button></div>' +
+      (open ? '<div class="cover"><p class="mini-h">What\'s covered</p><ul class="cov-list">' +
+        '<li>Sum insured</li><li class="v">' + rm(p.si, 0) + ' <span class="y-no">' + ins.basis + '</span></li>' +
+        COVERS.map((c, k) => '<li>' + esc(c) + '</li><li class="v">' + covText(ins.cov[k]) + '</li>').join("") + '</ul>' +
+        '<p class="mini-h">Price breakdown</p>' + breakdown(p, ins) + '</div>' : "") +
+      '</article>';
+  }).join("");
+
+  // wide screens: one table with the cover columns
+  $("#thead").innerHTML = '<tr><th>#</th><th>Insurer</th><th class="num">Price</th><th>Sum insured</th>' + COVERS.map(c => '<th>' + esc(c) + '</th>').join("") + '<th></th></tr>';
+  $("#tbody").innerHTML = rs.map((r, i) => {
+    const p = r.p, ins = r.ins;
+    return '<tr' + (S.chosen === ins.id ? ' class="chosen"' : "") + '><td class="rank">' + (i + 1) + '</td>' +
+      '<td><div style="display:flex;gap:10px;align-items:center"><span class="logo-dot" style="background:' + ins.color + '" aria-hidden="true">' + ins.mark + '</span><div><div class="ins-name">' + esc(ins.name) + '</div><div class="ins-plan">' + esc(ins.plan) + '</div></div></div></td>' +
+      '<td class="num pr">' + (i === 0 ? '<span class="tag">Lowest price</span>' : "") + '<div class="m">' + rm(p.month) + '<small>/mo</small></div><div class="y">' + rm(p.total) + ' / year</div></td>' +
+      '<td class="cv"><b>' + rm(p.si, 0) + '</b><small>' + ins.basis + '</small></td>' +
+      ins.cov.map(c => '<td class="cv">' + (c[0] === "n" ? '<span class="y-no">–</span>' : '<b class="' + (c[0] === "y" ? "y-ok" : "y-add") + '">' + (c[0] === "y" ? "✓ " : "+ ") + esc(c[1]) + '</b>' + (c[2] ? '<small>' + esc(c[2]) + '</small>' : "")) + '</td>').join("") +
+      '<td><button type="button" class="btn" data-choose="' + ins.id + '">' + (S.chosen === ins.id ? "Chosen ✓" : "Choose") + '</button></td></tr>';
   }).join("");
 }
 
-document.addEventListener("click", e => {
-  const chip = e.target.closest(".chip");
-  if (chip) { const k = chip.dataset.k, val = chip.dataset.v; S[k] = k === "ncd" ? Number(val) : val; S.open = null; render(); return; }
-  const per = e.target.closest("#period button");
-  if (per) { S.period = per.dataset.v; render(); return; }
-  const more = e.target.closest("[data-open]");
-  if (more) { S.open = S.open === more.dataset.open ? null : more.dataset.open; render(); return; }
-  const pick = e.target.closest("[data-pick]");
-  if (pick) { const v = VARIANTS.find(x => x.id === pick.dataset.pick); S.model = v.model; S.variant = v.id; S.open = null; render(); window.scrollTo({top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); return; }
-  const ch = e.target.closest("[data-choose]");
-  if (ch) {
-    const ins = INSURERS.find(i => i.id === ch.dataset.choose), v = VARIANTS.find(x => x.id === S.variant), p = priceOf(v, ins, S.region, S.ncd);
-    $("#s-title").textContent = "You chose " + ins.name;
-    $("#s-sub").textContent = ins.plan + " for " + v.model + " " + v.name + " · NCD " + S.ncd + "% · " + rm(p.total) + " / year (sample)";
-    $("#sheet").hidden = false; $("#s-close").focus(); return;
+function field(name, label, o){
+  o = o || {};
+  const err = S.errors[name] || "";
+  return '<div class="field"><label for="f-' + name + '">' + label + '</label>' +
+    '<input id="f-' + name + '" data-f="' + name + '" value="' + esc(S.form[name]) + '" type="' + (o.type || "text") + '"' + (o.mode ? ' inputmode="' + o.mode + '"' : "") + (o.max ? ' maxlength="' + o.max + '"' : "") + ' autocomplete="' + (o.ac || "off") + '"' + (err ? ' aria-invalid="true"' : "") + '>' +
+    (o.hint && !err ? '<p class="hint">' + o.hint + '</p>' : "") + '<p class="msg">' + esc(err) + '</p></div>';
+}
+
+function renderCheckout(){
+  const el = $("#checkout");
+  if (!S.chosen) { el.hidden = true; return; }
+  const ins = INSURERS.find(i => i.id === S.chosen), v = variant(), p = priceOf(v, ins, S.ncd, S.addons);
+  const picked = ADDONS.filter(a => S.addons[a.id]);
+  el.hidden = false;
+  if (S.done) {
+    el.innerHTML = '<div class="done"><h2 id="co-title">Thank you! We\'re issuing your policy now.</h2>' +
+      '<p class="ok">Our team will send your open cover note to ' + esc(S.form.email || "your email") + ' shortly. Once you register your car with JPJ, email or WhatsApp us the grant and we\'ll send the final cover note.</p>' +
+      '<p class="foot">Mock only. No payment was made.</p><button type="button" class="btn btn-ghost" data-restart="1">Start again</button></div>';
+    return;
   }
-  if (e.target.id === "s-close" || e.target.id === "sheet") { $("#sheet").hidden = true; }
+  const payAmt = id => BNPL.some(b => b.id === id) ? rm(p.month) + " / month" : rm(p.total);
+  el.innerHTML = '<h2 id="co-title">Complete your plan</h2>' +
+    '<div class="sec" style="border-top:0;padding-top:0"><h3>Your plan</h3><dl class="plan">' +
+      '<dt>Insurer</dt><dd>' + esc(ins.name) + ' · ' + esc(ins.plan) + '</dd>' +
+      '<dt>Car</dt><dd>' + esc(v.model + " " + v.name + " " + v.drive.split(" · ")[0]) + '</dd>' +
+      '<dt>Sum insured</dt><dd>' + rm(p.si, 0) + ' · ' + ins.basis + '</dd>' +
+      '<dt>NCD</dt><dd>' + S.ncd + '%</dd>' +
+      '<dt>Add-ons</dt><dd>' + (picked.length ? picked.map(a => esc(a.name)).join(", ") : "None") + '</dd>' +
+    '</dl></div>' +
+    '<div class="sec"><h3>Your details</h3>' +
+      field("name", "Full name (as on MyKad)", {ac:"name"}) +
+      field("ic", "IC number", {mode:"numeric", hint:"12 digits"}) +
+      '<div class="row2">' + field("mobile", "Mobile (WhatsApp)", {type:"tel", mode:"tel", ac:"tel"}) + field("postcode", "Postcode", {mode:"numeric", max:5, ac:"postal-code"}) + '</div>' +
+      field("email", "Email", {type:"email", mode:"email", ac:"email", hint:"Your cover note goes here"}) +
+      field("plate", "Plate number (if you have it)", {hint:"New car without a plate yet? Leave it empty."}) +
+    '</div>' +
+    '<div class="sec"><h3>How you pay</h3>' +
+      '<p class="pgroup">Pay later, monthly</p>' + BNPL.map(b => '<label class="popt"><input type="radio" name="pay" value="' + b.id + '"' + (S.pay === b.id ? " checked" : "") + '><span>' + b.name + '</span><span class="amt">' + payAmt(b.id) + '</span></label>').join("") +
+      '<p class="pgroup">Pay in full</p>' + FULL.map(b => '<label class="popt"><input type="radio" name="pay" value="' + b.id + '"' + (S.pay === b.id ? " checked" : "") + '><span>' + b.name + '</span><span class="amt">' + payAmt(b.id) + '</span></label>').join("") +
+    '</div>' +
+    '<div class="sec"><label class="consent"><input type="checkbox" id="agree"' + (S.agree ? " checked" : "") + '><span>I have read the product disclosure sheet and policy wording, and my details are true.</span></label>' +
+      '<div class="total"><span>Total per year</span><strong>' + rm(p.total) + '</strong></div>' +
+      (S.coErr ? '<p class="err">' + esc(S.coErr) + '</p>' : "") +
+      '<button type="button" class="btn" data-pay="1">' + (BNPL.some(b => b.id === S.pay) ? "Continue with " + BNPL.find(b => b.id === S.pay).name : "Pay " + rm(p.total)) + '</button>' +
+      '<p class="foot">Before payment, our backend checks the price once more.</p></div>';
+}
+
+function render(){ renderChoices(); renderResults(); renderCheckout(); }
+
+function validate(){
+  const f = S.form, e = {};
+  if (!f.name.trim()) e.name = "Enter your full name.";
+  if (f.ic.replace(/\D/g, "").length !== 12) e.ic = "IC number must have 12 digits.";
+  if (f.mobile.replace(/\D/g, "").length < 9) e.mobile = "Enter a mobile number, like 012-345 6789.";
+  if (!/^\d{5}$/.test(f.postcode)) e.postcode = "Postcode must have 5 digits.";
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) e.email = "Enter an email, like name@example.com.";
+  S.errors = e;
+  return !Object.keys(e).length;
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest(".seg-btn");
+  if (b) {
+    const k = b.dataset.k, val = b.dataset.v;
+    if (k === "addon") S.addons[val] = !S.addons[val];
+    else if (k === "ncd") S.ncd = Number(val);
+    else S[k] = val;
+    S.open = null; render(); return;
+  }
+  const o = e.target.closest("[data-open]");
+  if (o) { S.open = S.open === o.dataset.open ? null : o.dataset.open; renderResults(); return; }
+  const c = e.target.closest("[data-choose]");
+  if (c) {
+    S.chosen = c.dataset.choose; S.done = false; S.coErr = ""; render();
+    $("#checkout").scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start"});
+    return;
+  }
+  if (e.target.closest("[data-pay]")) {
+    const ok = validate();
+    S.coErr = !ok ? "Fill in the highlighted details to continue." : (!S.agree ? "Tick the box to continue." : "");
+    if (ok && S.agree) S.done = true;
+    renderCheckout();
+    if (S.done) $("#checkout").scrollIntoView({block: "start"});
+    return;
+  }
+  if (e.target.closest("[data-restart]")) {
+    Object.assign(S, {chosen:null, done:false, agree:false, coErr:"", errors:{}, form:{name:"", ic:"", mobile:"", email:"", postcode:"", plate:""}});
+    render(); window.scrollTo({top: 0}); return;
+  }
 });
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") $("#sheet").hidden = true;
-  const row = e.target.closest && e.target.closest("[data-pick]");
-  if (row && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); row.click(); }
+document.addEventListener("input", e => {
+  const f = e.target.dataset && e.target.dataset.f;
+  if (f) { S.form[f] = e.target.value; return; }
 });
+document.addEventListener("change", e => {
+  if (e.target.name === "pay") { S.pay = e.target.value; renderCheckout(); }
+  if (e.target.id === "agree") { S.agree = e.target.checked; }
+});
+addEventListener("resize", () => renderChoices());
 render();
 })();
 </script>

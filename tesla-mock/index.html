@@ -149,6 +149,11 @@ td.cv small{display:block;color:var(--muted);font-size:11.5px}
 .done{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 .done .ok{font-size:13px;background:var(--success-soft);border-radius:10px;padding:10px 12px}
 .foot{font-size:12px;color:var(--subtle);max-width:80ch}
+.east{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.east b{color:var(--ink);font-weight:600}
+.linkbtn{border:0;background:none;padding:0;color:var(--link);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.east-msg{background:var(--panel);border-radius:10px;padding:9px 12px;color:var(--ink-soft)}
+.fee{font-size:12px;color:var(--muted);margin-top:-2px}
 
 @media (min-width: 760px){
   .wrap{padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
@@ -200,9 +205,14 @@ td.cv small{display:block;color:var(--muted);font-size:11.5px}
     <div class="scroll"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
   </section>
 
+  <div class="east">
+    <p>These are <b>Peninsular Malaysia</b> prices. In Sabah, Sarawak or Labuan? <button type="button" class="linkbtn" data-east="1">Tap here</button></p>
+    <p class="east-msg" id="east-msg" hidden>East Malaysia prices are coming soon. For now, WhatsApp us and we'll quote you by hand.</p>
+  </div>
+
   <section class="checkout" id="checkout" hidden aria-labelledby="co-title"></section>
 
-  <p class="foot">Mock for discussion. All prices are sample numbers, not real quotes, for Peninsular Malaysia (East Malaysia is sorted at checkout from the postcode). Coverage amounts are copied from our Figma draft and still need checking against each insurer's wording. Prices include service tax and stamp duty. "Per month" is the yearly price ÷ 12; the real number of instalments depends on the pay-later provider.</p>
+  <p class="foot">Mock for discussion. All prices are sample numbers, not real quotes. Coverage amounts are copied from our Figma draft and still need checking against each insurer's wording. Prices include service tax and stamp duty. "Per month" is the yearly price ÷ 12, paying in full; pay-later fees are added only at checkout, once a pay-later option is picked.</p>
 </main>
 
 <script>
@@ -348,7 +358,7 @@ function renderCheckout(){
       '<p class="foot">Mock only. No payment was made.</p><button type="button" class="btn btn-ghost" data-restart="1">Start again</button></div>';
     return;
   }
-  const payAmt = id => BNPL.some(b => b.id === id) ? rm(p.month) + " / month" : rm(p.total);
+  const payAmt = id => BNPL.some(b => b.id === id) ? rm(p.month) + "/mo + fee" : rm(p.total);
   el.innerHTML = '<h2 id="co-title">Complete your plan</h2>' +
     '<div class="sec" style="border-top:0;padding-top:0"><h3>Your plan</h3><dl class="plan">' +
       '<dt>Insurer</dt><dd>' + esc(ins.name) + ' · ' + esc(ins.plan) + '</dd>' +
@@ -365,7 +375,7 @@ function renderCheckout(){
       field("plate", "Plate number (if you have it)", {hint:"New car without a plate yet? Leave it empty."}) +
     '</div>' +
     '<div class="sec"><h3>How you pay</h3>' +
-      '<p class="pgroup">Pay later, monthly</p>' + BNPL.map(b => '<label class="popt"><input type="radio" name="pay" value="' + b.id + '"' + (S.pay === b.id ? " checked" : "") + '><span>' + b.name + '</span><span class="amt">' + payAmt(b.id) + '</span></label>').join("") +
+      '<p class="pgroup">Pay later, monthly</p><p class="fee">Each provider adds its own fee. The exact amount shows here once we know each provider\'s terms.</p>' + BNPL.map(b => '<label class="popt"><input type="radio" name="pay" value="' + b.id + '"' + (S.pay === b.id ? " checked" : "") + '><span>' + b.name + '</span><span class="amt">' + payAmt(b.id) + '</span></label>').join("") +
       '<p class="pgroup">Pay in full</p>' + FULL.map(b => '<label class="popt"><input type="radio" name="pay" value="' + b.id + '"' + (S.pay === b.id ? " checked" : "") + '><span>' + b.name + '</span><span class="amt">' + payAmt(b.id) + '</span></label>').join("") +
     '</div>' +
     '<div class="sec"><label class="consent"><input type="checkbox" id="agree"' + (S.agree ? " checked" : "") + '><span>I have read the product disclosure sheet and policy wording, and my details are true.</span></label>' +
@@ -413,6 +423,7 @@ document.addEventListener("click", e => {
     if (S.done) $("#checkout").scrollIntoView({block: "start"});
     return;
   }
+  if (e.target.closest("[data-east]")) { const m = $("#east-msg"); m.hidden = !m.hidden; return; }
   if (e.target.closest("[data-restart]")) {
     Object.assign(S, {chosen:null, done:false, agree:false, coErr:"", errors:{}, form:{name:"", ic:"", mobile:"", email:"", postcode:"", plate:""}});
     render(); window.scrollTo({top: 0}); return;

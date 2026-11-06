@@ -59,18 +59,18 @@ main{display:flex;flex-direction:column;gap:12px;padding-block:12px 40px}
 .choices{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
 .crow{display:flex;flex-direction:column;gap:5px;min-width:0}
 .clabel{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--subtle)}
-.segs{display:grid;gap:1px;background:var(--line-strong);border:1px solid var(--line-strong);border-radius:12px;overflow:hidden}
-.segs.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
-.segs.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
-.seg-btn{border:0;background:var(--panel);padding:9px 6px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;line-height:1.2;min-width:0;transition:background .15s,color .15s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;text-align:center}
-.seg-btn small{font-size:11.5px;font-weight:500;opacity:.75}
-.seg-btn:hover{color:var(--ink)}
-.seg-btn[aria-pressed="true"]{background:var(--on);color:var(--on-ink)}
+/* chips: wrap onto a new line, never slide */
+.segs{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.seg-btn{border:1.5px solid var(--line-strong);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
+.seg-btn small{font-size:12px;font-weight:500;opacity:.7;margin-left:4px}
+.seg-btn:hover{border-color:var(--ink-soft)}
+.seg-btn[aria-pressed="true"]{background:var(--on);color:var(--on-ink);border-color:var(--on)}
 .seg-btn .tick{font-size:12px}
-@media (max-width: 759px){
-  /* an odd last box in a 2-column grid takes the full row, so no empty gap shows */
-  .segs.c2 > :last-child:nth-child(odd){grid-column:1 / -1}
-}
+/* variant: a dropdown, the names are too long for chips on a phone */
+.select-wrap{position:relative;max-width:420px}
+.select-wrap::after{content:"";position:absolute;right:16px;top:50%;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.select{appearance:none;-webkit-appearance:none;width:100%;height:42px;border:1.5px solid var(--line-strong);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;font-size:15px;font-weight:500;padding:0 40px 0 13px;cursor:pointer}
+.select:focus{outline:none;border-color:var(--primary)}
 
 /* results */
 .res-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-top:4px}
@@ -186,7 +186,7 @@ td.cv small{display:block;color:var(--muted);font-size:11.5px}
 
   <section class="choices" aria-label="Your car and cover">
     <div class="crow"><span class="clabel" id="l-model">Model</span><div class="segs c3 models" id="models" role="group" aria-labelledby="l-model"></div></div>
-    <div class="crow"><span class="clabel" id="l-var">Variant</span><div class="segs c2" id="variants" role="group" aria-labelledby="l-var"></div></div>
+    <div class="crow"><label class="clabel" for="variants">Variant</label><div class="select-wrap"><select class="select" id="variants"></select></div></div>
     <div class="crow"><span class="clabel" id="l-ncd">NCD</span><div class="segs c3 wide-6" id="ncds" role="group" aria-labelledby="l-ncd"></div></div>
     <div class="crow"><span class="clabel" id="l-add">Add-ons</span><div class="segs c2 addons" id="addons" role="group" aria-labelledby="l-add"></div></div>
   </section>
@@ -282,10 +282,7 @@ function renderChoices(){
   const vs = VARIANTS.filter(v => v.model === S.model);
   if (!vs.some(v => v.id === S.variant)) S.variant = vs[0].id;
   $("#models").innerHTML = seg(MODELS.map(m => ({v:m, label:esc(m)})), S.model, "model");
-  const vEl = $("#variants");
-  vEl.className = "segs c2" + (vs.length >= 4 ? " wide-4" : "");
-  vEl.style.gridTemplateColumns = vs.length === 1 ? "1fr" : (vs.length === 3 && innerWidth >= 760 ? "repeat(3,minmax(0,1fr))" : "");
-  vEl.innerHTML = seg(vs.map(x => ({v:x.id, label:esc(x.name) + '<small>' + esc(x.drive) + '</small>'})), S.variant, "variant");
+  $("#variants").innerHTML = vs.map(x => '<option value="' + x.id + '"' + (x.id === S.variant ? " selected" : "") + '>' + esc(x.name + " " + x.drive) + '</option>').join("");
   $("#ncds").innerHTML = seg(NCDS.map(n => ({v:n, label:n + "%"})), S.ncd, "ncd");
   $("#addons").innerHTML = seg(ADDONS.map(a => ({v:a.id, label:(S.addons[a.id] ? '<span class="tick">✓ </span>' : "+ ") + esc(a.name) + '<small>' + esc(a.note) + '</small>'})), null, "addon", true);
 }
@@ -428,8 +425,8 @@ document.addEventListener("input", e => {
 document.addEventListener("change", e => {
   if (e.target.name === "pay") { S.pay = e.target.value; renderCheckout(); }
   if (e.target.id === "agree") { S.agree = e.target.checked; }
+  if (e.target.id === "variants") { S.variant = e.target.value; S.open = null; render(); }
 });
-addEventListener("resize", () => renderChoices());
 render();
 })();
 </script>
